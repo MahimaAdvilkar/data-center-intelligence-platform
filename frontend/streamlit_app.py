@@ -735,9 +735,20 @@ elif page == "AI Analyst":
     ]
 
     SYSTEM = """You are an expert data center infrastructure analyst for the Data Center Intelligence Platform.
-You have access to real data: 203 US data centers across 15 states, 13 Indian cities scored via gravity model,
-and 3 data center tiers (Hyperscale, Mid-Tier, Edge/Colo) from K-Means clustering with 95% RF accuracy.
-Always call tools first to get live data, then give a specific, grounded answer citing actual numbers."""
+
+You have access to real data via tools:
+- 203 US data centers across 15 states (FL, VA, NY, CA, TX, GA, NC, OH, IL, AZ, NJ, OR, CO, ID, WA)
+- 13 Indian cities scored using a gravity model (8 parameters: energy cost, network, land, renewable %, etc.)
+- 3 data center tiers from K-Means clustering: Hyperscale (Cluster 0, 38 DCs), Mid-Tier (Cluster 1, 153 DCs), Edge/Colo (Cluster 2, 12 DCs)
+- Random Forest classifier with 95% accuracy
+
+STRICT RULES:
+1. ALWAYS call the relevant tool first before writing anything
+2. Write your answer as plain conversational text — NO markdown tables, NO bullet lists, NO headers
+3. Keep answers to 3-5 sentences maximum
+4. Cite specific numbers from the tool data (scores, MW, costs, ranks)
+5. End with one actionable recommendation
+6. Do NOT describe what you are doing — just answer the question directly"""
 
     def run_tool(name, inputs):
         if name == "get_gravity_scores":      return get_gravity_scores(inputs.get("top_n", 13))
@@ -754,42 +765,52 @@ Always call tools first to get live data, then give a specific, grounded answer 
 
         with st.chat_message("assistant"):
             with st.spinner("Analysing your data..."):
-                client = anthropic.Anthropic(api_key=api_key)
-                messages = [{"role": "user", "content": user_input}]
-                tools_used = []
+                try:
+                    client = anthropic.Anthropic(api_key=api_key)
+                    messages = [{"role": "user", "content": user_input}]
+                    tools_used = []
 
-                while True:
-                    resp = client.messages.create(
-                        model="claude-sonnet-4-6",
-                        max_tokens=1024,
-                        system=SYSTEM,
-                        tools=TOOLS,
-                        messages=messages,
-                    )
-                    if resp.stop_reason == "tool_use":
-                        tool_results = []
-                        for block in resp.content:
-                            if block.type == "tool_use":
-                                tools_used.append(block.name)
-                                result = run_tool(block.name, block.input)
-                                tool_results.append({
-                                    "type": "tool_result",
-                                    "tool_use_id": block.id,
-                                    "content": json.dumps(result),
-                                })
-                        messages.append({"role": "assistant", "content": resp.content})
-                        messages.append({"role": "user", "content": tool_results})
-                    else:
-                        final = " ".join(b.text for b in resp.content if hasattr(b, "text"))
-                        st.markdown(final)
-                        if tools_used:
-                            st.caption(f"Tools used: {', '.join(set(tools_used))}")
-                        st.session_state.chat_history.append({
-                            "role": "assistant",
-                            "content": final,
-                            "tools_used": list(set(tools_used)),
-                        })
-                        break
+                    while True:
+                        resp = client.messages.create(
+                            model="claude-sonnet-4-6",
+                            max_tokens=1024,
+                            system=SYSTEM,
+                            tools=TOOLS,
+                            messages=messages,
+                        )
+                        if resp.stop_reason == "tool_use":
+                            tool_results = []
+                            for block in resp.content:
+                                if block.type == "tool_use":
+                                    tools_used.append(block.name)
+                                    result = run_tool(block.name, block.input)
+                                    tool_results.append({
+                                        "type": "tool_result",
+                                        "tool_use_id": block.id,
+                                        "content": json.dumps(result),
+                                    })
+                            messages.append({"role": "assistant", "content": resp.content})
+                            messages.append({"role": "user", "content": tool_results})
+                        else:
+                            final = " ".join(b.text for b in resp.content if hasattr(b, "text"))
+                            st.markdown(final)
+                            if tools_used:
+                                st.caption(f"Data sources queried: {', '.join(set(tools_used))}")
+                            st.session_state.chat_history.append({
+                                "role": "assistant",
+                                "content": final,
+                                "tools_used": list(set(tools_used)),
+                            })
+                            break
+
+                except anthropic.AuthenticationError:
+                    st.error("Invalid API key. Please re-enter a valid Anthropic API key.")
+                    st.session_state.anthropic_api_key = ""
+                    st.session_state.chat_history.pop()
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Something went wrong: {e}")
+                    st.session_state.chat_history.pop()
 
     if st.session_state.chat_history:
         if st.button("Clear conversation"):
