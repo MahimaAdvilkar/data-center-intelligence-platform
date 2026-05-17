@@ -654,20 +654,32 @@ elif page == "AI Analyst":
     st.markdown("Ask any question about data center site selection, expansion strategy, or your dataset — answered using real data from your models.")
     st.markdown("---")
 
-    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if "anthropic_api_key" not in st.session_state:
+        st.session_state.anthropic_api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+
+    api_key = st.session_state.anthropic_api_key
+
     if not api_key:
-        with st.sidebar:
-            st.markdown("### API Key")
-            api_key = st.text_input(
-                "Anthropic API Key",
+        st.markdown("### Enter your Anthropic API Key to get started")
+        col_key, col_btn = st.columns([3, 1])
+        with col_key:
+            entered_key = st.text_input(
+                "API Key",
                 type="password",
-                placeholder="sk-ant-...",
-                help="Get your key at console.anthropic.com",
+                placeholder="sk-ant-api03-...",
+                label_visibility="collapsed",
             )
-        if not api_key:
-            st.info("Enter your Anthropic API key in the sidebar to activate the AI Analyst.")
-            st.markdown("Get a free key at **[console.anthropic.com](https://console.anthropic.com)**")
-            st.stop()
+        with col_btn:
+            if st.button("Activate", type="primary", use_container_width=True):
+                if entered_key.startswith("sk-"):
+                    st.session_state.anthropic_api_key = entered_key
+                    st.rerun()
+                else:
+                    st.error("Key should start with sk-ant-...")
+        st.markdown("Get a free key at [console.anthropic.com](https://console.anthropic.com) → API Keys")
+        st.stop()
+
+    api_key = st.session_state.anthropic_api_key
 
     # Suggested questions
     st.markdown("**Try asking:**")
