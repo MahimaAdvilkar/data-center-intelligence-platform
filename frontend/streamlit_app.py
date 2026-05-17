@@ -30,10 +30,10 @@ st.sidebar.title("Data Center Intelligence Platform")
 st.sidebar.markdown("---")
 page = st.sidebar.radio(
     "Navigate",
-    ["Overview", "Site Finder (Gravity Model)", "Optimizer (NSGA-II)", "Cluster Predictor", "Data Explorer", "Data Pipeline"],
+    ["Overview", "Site Finder (Gravity Model)", "Optimizer (NSGA-II)", "Cluster Predictor", "Data Explorer", "Data Pipeline", "AI Analyst"],
 )
 st.sidebar.markdown("---")
-st.sidebar.caption("Built on top of the Capstone Project | Phase 1 MVP")
+st.sidebar.caption("Built on top of the Capstone Project | Phase 2 — AI Layer")
 
 
 # ── Shared loaders ─────────────────────────────────────────────────────────────
@@ -638,3 +638,140 @@ pipeline_log.json  ←  Timestamped run record (records added, errors, state sum
     else:
         st.markdown("---")
         st.info("No raw scraped data yet. Pipeline has not been run.")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PAGE 7 — AI Analyst
+# ═══════════════════════════════════════════════════════════════════════════════
+elif page == "AI Analyst":
+    import os, json, anthropic
+    from backend.core.ai_context import (
+        get_gravity_scores, get_cluster_summary,
+        get_dataset_overview, get_top_data_centers, get_city_detail,
+    )
+
+    st.title("AI Analyst")
+    st.markdown("Ask any question about data center site selection, expansion strategy, or your dataset — answered using real data from your models.")
+    st.markdown("---")
+
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        st.warning("Set your `ANTHROPIC_API_KEY` environment variable to enable the AI Analyst.")
+        st.code("export ANTHROPIC_API_KEY=your_key_here", language="bash")
+        st.markdown("Then restart the Streamlit app.")
+        st.stop()
+
+    # Suggested questions
+    st.markdown("**Try asking:**")
+    suggestions = [
+        "Which Indian city should I choose for a 50MW renewable-focused data center?",
+        "Why does Hyderabad rank higher than Mumbai?",
+        "What are the characteristics of a Hyperscale data center in our dataset?",
+        "Which US data centers have the best PUE efficiency?",
+        "Compare Bangalore and Pune for data center expansion.",
+        "What does the Mid-Tier cluster look like on average?",
+    ]
+    cols = st.columns(3)
+    for i, s in enumerate(suggestions):
+        if cols[i % 3].button(s, key=f"suggest_{i}", use_container_width=True):
+            st.session_state["ai_input"] = s
+
+    st.markdown("---")
+
+    # Chat history
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
+
+    # Display history
+    for msg in st.session_state.chat_history:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+            if msg.get("tools_used"):
+                st.caption(f"Tools used: {', '.join(msg['tools_used'])}")
+
+    # Input
+    user_input = st.chat_input("Ask anything about data centers, cities, clusters, or the dataset...")
+
+    # Handle suggestion button
+    if "ai_input" in st.session_state and st.session_state["ai_input"]:
+        user_input = st.session_state.pop("ai_input")
+
+    TOOLS = [
+        {"name": "get_gravity_scores", "description": "Get ranked gravity model scores for 13 Indian cities.",
+         "input_schema": {"type": "object", "properties": {"top_n": {"type": "integer", "default": 13}}}},
+        {"name": "get_cluster_summary", "description": "Get cluster statistics for all 3 data center tiers.",
+         "input_schema": {"type": "object", "properties": {}}},
+        {"name": "get_dataset_overview", "description": "Get overall dataset statistics.",
+         "input_schema": {"type": "object", "properties": {}}},
+        {"name": "get_top_data_centers", "description": "Get top US data centers by a metric (pue, energy, area, ixp, newest).",
+         "input_schema": {"type": "object", "properties": {
+             "metric": {"type": "string", "enum": ["pue","energy","area","ixp","newest"]},
+             "top_n": {"type": "integer", "default": 10},
+         }, "required": ["metric"]}},
+        {"name": "get_city_detail", "description": "Get detailed parameters for a specific Indian city.",
+         "input_schema": {"type": "object", "properties": {
+             "city_name": {"type": "string"}
+         }, "required": ["city_name"]}},
+    ]
+
+    SYSTEM = """You are an expert data center infrastructure analyst for the Data Center Intelligence Platform.
+You have access to real data: 203 US data centers across 15 states, 13 Indian cities scored via gravity model,
+and 3 data center tiers (Hyperscale, Mid-Tier, Edge/Colo) from K-Means clustering with 95% RF accuracy.
+Always call tools first to get live data, then give a specific, grounded answer citing actual numbers."""
+
+    def run_tool(name, inputs):
+        if name == "get_gravity_scores":      return get_gravity_scores(inputs.get("top_n", 13))
+        if name == "get_cluster_summary":     return get_cluster_summary()
+        if name == "get_dataset_overview":    return get_dataset_overview()
+        if name == "get_top_data_centers":    return get_top_data_centers(inputs.get("metric","pue"), inputs.get("top_n",10))
+        if name == "get_city_detail":         return get_city_detail(inputs.get("city_name",""))
+        return {"error": f"Unknown tool: {name}"}
+
+    if user_input:
+        st.session_state.chat_history.append({"role": "user", "content": user_input})
+        with st.chat_message("user"):
+            st.markdown(user_input)
+
+        with st.chat_message("assistant"):
+            with st.spinner("Analysing your data..."):
+                client = anthropic.Anthropic(api_key=api_key)
+                messages = [{"role": "user", "content": user_input}]
+                tools_used = []
+
+                while True:
+                    resp = client.messages.create(
+                        model="claude-sonnet-4-6",
+                        max_tokens=1024,
+                        system=SYSTEM,
+                        tools=TOOLS,
+                        messages=messages,
+                    )
+                    if resp.stop_reason == "tool_use":
+                        tool_results = []
+                        for block in resp.content:
+                            if block.type == "tool_use":
+                                tools_used.append(block.name)
+                                result = run_tool(block.name, block.input)
+                                tool_results.append({
+                                    "type": "tool_result",
+                                    "tool_use_id": block.id,
+                                    "content": json.dumps(result),
+                                })
+                        messages.append({"role": "assistant", "content": resp.content})
+                        messages.append({"role": "user", "content": tool_results})
+                    else:
+                        final = " ".join(b.text for b in resp.content if hasattr(b, "text"))
+                        st.markdown(final)
+                        if tools_used:
+                            st.caption(f"Tools used: {', '.join(set(tools_used))}")
+                        st.session_state.chat_history.append({
+                            "role": "assistant",
+                            "content": final,
+                            "tools_used": list(set(tools_used)),
+                        })
+                        break
+
+    if st.session_state.chat_history:
+        if st.button("Clear conversation"):
+            st.session_state.chat_history = []
+            st.rerun()

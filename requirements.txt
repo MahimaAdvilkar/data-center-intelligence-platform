@@ -15,6 +15,9 @@ joblib==1.4.2
 deap==1.4.1
 pyomo==6.7.1
 
+# AI
+anthropic>=0.28.0
+
 # Data collection
 playwright==1.44.0
 openpyxl==3.1.2

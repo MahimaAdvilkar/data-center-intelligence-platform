@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.api.routes import gravity, optimization, cluster
+from backend.api.routes import gravity, optimization, cluster, ai_chat
 
 app = FastAPI(
     title="Data Center Intelligence Platform API",
@@ -18,6 +18,7 @@ app.add_middleware(
 app.include_router(gravity.router)
 app.include_router(optimization.router)
 app.include_router(cluster.router)
+app.include_router(ai_chat.router)
 
 
 @app.get("/", tags=["Health"])
