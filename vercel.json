@@ -1,15 +1,7 @@
 {
   "buildCommand": "cd react-frontend && npm install && npm run build",
   "outputDirectory": "react-frontend/dist",
-  "routes": [
-    { "src": "/gravity/(.*)",      "dest": "/api/index.py" },
-    { "src": "/optimization/(.*)", "dest": "/api/index.py" },
-    { "src": "/cluster/(.*)",      "dest": "/api/index.py" },
-    { "src": "/ai/(.*)",           "dest": "/api/index.py" },
-    { "src": "/health",            "dest": "/api/index.py" },
-    { "src": "/docs",              "dest": "/api/index.py" },
-    { "src": "/openapi.json",      "dest": "/api/index.py" },
-    { "handle": "filesystem" },
-    { "src": "/(.*)",              "dest": "/index.html" }
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
