@@ -9,7 +9,12 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
-from backend.core.config import DC_CLUSTERED_CSV, RF_MODEL_PATH, SCALER_PATH
+from pathlib import Path
+
+_BASE = Path(__file__).resolve().parent
+DC_CLUSTERED_CSV = _BASE / "data" / "dc_clustered.csv"
+RF_MODEL_PATH    = _BASE / "models" / "rf_model.pkl"
+SCALER_PATH      = _BASE / "models" / "scaler.pkl"
 
 FEATURE_COLS = [
     "ENERGY", "AREA", "IT EQUIPMENT POWER", "State_Aggregated_PUE",
