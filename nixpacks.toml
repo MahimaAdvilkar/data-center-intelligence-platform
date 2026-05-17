@@ -2,7 +2,7 @@
 nixPkgs = ["python311", "gcc"]
 
 [phases.install]
-cmds = ["pip install -r requirements.txt"]
+cmds = ["python3.11 -m pip install -r requirements.txt --no-cache-dir"]
 
 [start]
 cmd = "uvicorn backend.api.main:app --host 0.0.0.0 --port $PORT"
