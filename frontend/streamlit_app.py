@@ -14,7 +14,7 @@ import plotly.graph_objects as go
 from deap import base, creator, tools, algorithms
 
 from backend.core.config import (
-    DC_CLUSTERED_CSV, DC_FINAL_CSV, GRAVITY_CSV, RF_MODEL_PATH, SCALER_PATH
+    DC_CLUSTERED_CSV, DC_FINAL_CSV, GRAVITY_CSV, RF_MODEL_PATH, SCALER_PATH, DATA_DIR
 )
 
 # ── Page config ────────────────────────────────────────────────────────────────
@@ -30,7 +30,7 @@ st.sidebar.title("Data Center Intelligence Platform")
 st.sidebar.markdown("---")
 page = st.sidebar.radio(
     "Navigate",
-    ["Overview", "Site Finder (Gravity Model)", "Optimizer (NSGA-II)", "Cluster Predictor", "Data Explorer"],
+    ["Overview", "Site Finder (Gravity Model)", "Optimizer (NSGA-II)", "Cluster Predictor", "Data Explorer", "Data Pipeline"],
 )
 st.sidebar.markdown("---")
 st.sidebar.caption("Built on top of the Capstone Project | Phase 1 MVP")
@@ -147,7 +147,8 @@ elif page == "Site Finder (Gravity Model)":
         total = sum(weights.values())
         if abs(total - 1.0) > 0.02:
             st.warning(f"Weights sum to {total:.2f}. Please adjust to sum to 1.0.")
-    else:
+
+    if "weights" not in dir():
         weights = {
             "Water": 0.05, "Energy": 0.20, "Workforce": 0.05, "LandCost": 0.15,
             "Renewable": 0.10, "LandAvail": 0.05, "Network": 0.20, "Climate": 0.10,
@@ -481,3 +482,159 @@ elif page == "Data Explorer":
         "State_Aggregated_IXP_Count": "IXP Count",
         "YEAR_OPERATIONAL": "Year",
     }), use_container_width=True, hide_index=True)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PAGE 6 — Data Pipeline
+# ═══════════════════════════════════════════════════════════════════════════════
+elif page == "Data Pipeline":
+    import json
+
+    st.title("Data Pipeline")
+    st.markdown("End-to-end data lineage — where every number in this platform comes from.")
+    st.markdown("---")
+
+    # ── Data Sources ──────────────────────────────────────────────────────────
+    st.subheader("Data Sources")
+    sources = [
+        {
+            "Dataset": "US Data Centers",
+            "Source": "datacentermap.com",
+            "Method": "Playwright web scraper",
+            "Coverage": "FL, VA, NY, ID, WA (original) + CA, TX, GA, NC, OH, IL, AZ, NJ, OR, CO (expanded)",
+            "Fields": "Name, City, State, Energy (MW), Area (sqft), IT Power (MW), Services (8 types), Year Operational",
+            "Last Updated": "May 2025",
+        },
+        {
+            "Dataset": "Indian Cities — Gravity Model",
+            "Source": "POSOCO, CEA, brightlio.com, State Electricity Boards",
+            "Method": "Manual research + public reports",
+            "Coverage": "13 major Indian cities",
+            "Fields": "Water cost, Energy cost, Workforce salary, Renewable %, Land cost, Land availability, Network index, Climate index",
+            "Last Updated": "April 2025",
+        },
+        {
+            "Dataset": "State PUE Estimates",
+            "Source": "Lawrence Berkeley National Laboratory (2024 US Data Center Energy Report)",
+            "Method": "Published research — state-level averages",
+            "Coverage": "15 US states",
+            "Fields": "Power Usage Effectiveness (PUE) — industry standard energy efficiency metric",
+            "Last Updated": "2024",
+        },
+        {
+            "Dataset": "State IXP Count",
+            "Source": "PeeringDB (peeringdb.com) — public internet exchange database",
+            "Method": "Public API / manual lookup",
+            "Coverage": "15 US states",
+            "Fields": "Number of Internet Exchange Points per state",
+            "Last Updated": "2025",
+        },
+    ]
+    st.dataframe(pd.DataFrame(sources), use_container_width=True, hide_index=True)
+
+    st.markdown("---")
+
+    # ── Data Dictionary ───────────────────────────────────────────────────────
+    st.subheader("Data Dictionary — US Data Centers")
+    dictionary = [
+        {"Column": "STATE",                    "Type": "string", "Description": "2-letter US state abbreviation"},
+        {"Column": "CITY",                     "Type": "string", "Description": "City where the data center is located"},
+        {"Column": "LOCATION",                 "Type": "string", "Description": "Full facility name / address"},
+        {"Column": "ENERGY",                   "Type": "float",  "Description": "Total power capacity in megawatts (MW)"},
+        {"Column": "AREA",                     "Type": "int",    "Description": "Facility floor area in square feet"},
+        {"Column": "IT EQUIPMENT POWER",       "Type": "float",  "Description": "Power dedicated to IT equipment (MW). If not listed, estimated as 70% of ENERGY."},
+        {"Column": "State_Aggregated_PUE",     "Type": "float",  "Description": "Power Usage Effectiveness — total facility power / IT power. Lower is better. 1.0 = perfect. Source: LBNL 2024."},
+        {"Column": "FULL_CABINETS",            "Type": "bool",   "Description": "Offers full dedicated server cabinet rental"},
+        {"Column": "PARTIAL_CABINETS",         "Type": "bool",   "Description": "Offers partial cabinet rental"},
+        {"Column": "SHARED_RACKSPACE",         "Type": "bool",   "Description": "Offers shared rack space"},
+        {"Column": "CAGES",                    "Type": "bool",   "Description": "Offers private cage colocation"},
+        {"Column": "SUITES",                   "Type": "bool",   "Description": "Offers private data center suites"},
+        {"Column": "BUILD_TO_SUIT",            "Type": "bool",   "Description": "Offers custom build-to-suit space"},
+        {"Column": "FOOTPRINTS",               "Type": "bool",   "Description": "Offers custom footprint configurations"},
+        {"Column": "REMOTE_HANDS",             "Type": "bool",   "Description": "Offers remote hands / on-site technical staff"},
+        {"Column": "YEAR_OPERATIONAL",         "Type": "int",    "Description": "Year the facility became operational"},
+        {"Column": "State_Aggregated_IXP_Count","Type":"int",    "Description": "Number of Internet Exchange Points in the state. Source: PeeringDB."},
+        {"Column": "Cluster",                  "Type": "int",    "Description": "K-Means cluster assignment (0=Hyperscale, 1=Mid-Tier, 2=Edge/Colo)"},
+    ]
+    st.dataframe(pd.DataFrame(dictionary), use_container_width=True, hide_index=True)
+
+    st.markdown("---")
+
+    # ── Pipeline Architecture ─────────────────────────────────────────────────
+    st.subheader("Pipeline Architecture")
+    st.code("""
+datacentermap.com
+        │
+        ▼
+scrape_pipeline.py  ←  Playwright browser automation
+  • Fetches city lists per state
+  • Fetches data center listings per city
+  • Fetches specs page per data center
+  • Retries on timeout (3 attempts)
+  • Rate-limited (3–7s between requests)
+        │
+        ▼
+dc_raw_scraped.csv  ←  Incremental append (never overwrites)
+        │
+        ▼
+merge_and_clean.py  ←  Deduplication, null handling, schema alignment
+        │
+        ▼
+dc_cleaned.csv  ──→  EDA, clustering (K-Means + PCA)  ──→  dc_clustered.csv
+                                                                    │
+                                                    Random Forest training
+                                                                    │
+                                                    rf_model.pkl + scaler.pkl
+        │
+        ▼
+pipeline_log.json  ←  Timestamped run record (records added, errors, state summary)
+    """, language="text")
+
+    st.markdown("---")
+
+    # ── Live Pipeline Log ─────────────────────────────────────────────────────
+    st.subheader("Scrape Run History")
+    log_path = DATA_DIR / "pipeline_log.json"
+    if log_path.exists():
+        log_data = json.loads(log_path.read_text())
+        runs = log_data.get("runs", [])
+        if runs:
+            summary_rows = []
+            for r in runs:
+                summary_rows.append({
+                    "Run ID": r.get("run_id", ""),
+                    "Started": r.get("started_at", "")[:19].replace("T", " "),
+                    "Finished": r.get("finished_at", "")[:19].replace("T", " ") if r.get("finished_at") else "In progress",
+                    "Records Added": r.get("records_added", 0),
+                    "States": ", ".join(r.get("states", [])),
+                    "Errors": len(r.get("errors", [])),
+                })
+            st.dataframe(pd.DataFrame(summary_rows), use_container_width=True, hide_index=True)
+
+            latest = runs[-1]
+            if latest.get("state_summary"):
+                st.markdown("**Latest run — records per state:**")
+                state_df = pd.DataFrame([
+                    {"State": k, "Records Added": v}
+                    for k, v in latest["state_summary"].items()
+                ])
+                fig = px.bar(state_df, x="State", y="Records Added",
+                             color="Records Added", color_continuous_scale="Teal",
+                             template="plotly_white")
+                st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("No scrape runs recorded yet. Run `python scrapers/scrape_pipeline.py` to start.")
+    else:
+        st.info("No pipeline log found. Run `python scrapers/scrape_pipeline.py` to start the data pipeline.")
+
+    # ── Raw Scraped Data Preview ───────────────────────────────────────────────
+    scraped_path = DATA_DIR / "dc_raw_scraped.csv"
+    if scraped_path.exists():
+        st.markdown("---")
+        st.subheader("Raw Scraped Data (latest)")
+        df_raw = pd.read_csv(scraped_path)
+        st.markdown(f"**{len(df_raw)} records** scraped so far across **{df_raw['STATE'].nunique()} states**.")
+        st.dataframe(df_raw.tail(50), use_container_width=True, hide_index=True)
+    else:
+        st.markdown("---")
+        st.info("No raw scraped data yet. Pipeline has not been run.")
