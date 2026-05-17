@@ -1,0 +1,197 @@
+STATE,CITY,LOCATION,ENERGY,AREA,IT EQUIPMENT POWER,State_Aggregated_PUE,FULL_CABINETS,PARTIAL_CABINETS,SHARED_RACKSPACE,CAGES,SUITES,BUILD_TO_SUIT,FOOTPRINTS,REMOTE_HANDS,YEAR_OPERATIONAL,State_Aggregated_IXP_Count,SOURCE_URL,SCRAPED_AT
+CA,Santa Clara,1100 Space Park Dr (SJC10),6.3,67900,4.41,1.5,True,True,False,True,True,False,True,True,2001,12,https://www.datacentermap.com/usa/california/santa-clara/1100-space-park-drive/specs/,2026-05-17T04:01:07.564680+00:00
+CA,Santa Clara,3205 Alfred St (SJC35),6.0,34200,4.2,1.5,True,True,False,True,True,False,True,True,2018,12,https://www.datacentermap.com/usa/california/santa-clara/3115-alfred-rd/specs/,2026-05-17T04:06:26.507093+00:00
+CA,Santa Clara,3105 Alfred Rd (SJC30),4.5,26900,3.15,1.5,True,True,False,True,True,False,True,True,1974,12,https://www.datacentermap.com/usa/california/santa-clara/3105-alfred-rd/specs/,2026-05-17T04:12:35.857574+00:00
+CA,Santa Clara,1201 Comstock St (SJC15),2.2,14000,1.54,1.5,True,True,False,True,True,False,True,True,2009,12,https://www.datacentermap.com/usa/california/santa-clara/1201-comstock-street/specs/,2026-05-17T04:19:15.993972+00:00
+CA,Santa Clara,2820 Northwestern Pkwy (SJC34),5.7,22700,3.99,1.5,True,True,False,True,True,False,True,True,2012,12,https://www.datacentermap.com/usa/california/santa-clara/telx-scl2/specs/,2026-05-17T04:25:58.466895+00:00
+CA,Santa Clara,1525 Comstock St (SJC16),4.5,65500,3.15,1.5,True,True,False,True,True,False,True,True,1980,12,https://www.datacentermap.com/usa/california/santa-clara/1525-comstock-street/specs/,2026-05-17T04:30:08.307304+00:00
+CA,Santa Clara,2220 De La Cruz Blvd (SC1),52.6,238900,36.82,1.5,True,True,False,True,True,False,True,True,2011,12,https://www.datacentermap.com/usa/california/santa-clara/2220-de-la-cruz-boulevard/specs/,2026-05-17T04:35:48.361037+00:00
+CA,Santa Clara,2805 Lafayette St (SJC31),9.3,55800,6.51,1.5,True,True,False,True,True,False,True,True,1984,12,https://www.datacentermap.com/usa/california/santa-clara/2805-lafayette/specs/,2026-05-17T04:41:59.747142+00:00
+CA,Santa Clara,3011 Lafayette St (SJC11),6.0,51000,4.2,1.5,True,True,False,True,True,False,True,True,2001,12,https://www.datacentermap.com/usa/california/santa-clara/3011-lafayette-street/specs/,2026-05-17T04:47:28.135903+00:00
+CA,Santa Clara,CoreSite Silicon Valley (SV9),34.0,228000,23.8,1.5,True,False,False,True,True,False,False,False,2025,12,https://www.datacentermap.com/usa/california/santa-clara/coresite-silicon-valley-sv9/specs/,2026-05-17T04:54:29.167560+00:00
+CA,Santa Clara,1100 Space Park Dr (SJC10),6.3,67900,4.41,1.5,True,True,False,True,True,False,True,True,2001,12,https://www.datacentermap.com/usa/california/santa-clara/1100-space-park-drive/specs/,2026-05-17T05:10:20.346043+00:00
+CA,Santa Clara,3205 Alfred St (SJC35),6.0,34200,4.2,1.5,True,True,False,True,True,False,True,True,2018,12,https://www.datacentermap.com/usa/california/santa-clara/3115-alfred-rd/specs/,2026-05-17T05:15:38.007509+00:00
+CA,Santa Clara,3105 Alfred Rd (SJC30),4.5,26900,3.15,1.5,True,True,False,True,True,False,True,True,1974,12,https://www.datacentermap.com/usa/california/santa-clara/3105-alfred-rd/specs/,2026-05-17T05:21:45.006097+00:00
+CA,Santa Clara,1201 Comstock St (SJC15),2.2,14000,1.54,1.5,True,True,False,True,True,False,True,True,2009,12,https://www.datacentermap.com/usa/california/santa-clara/1201-comstock-street/specs/,2026-05-17T05:28:25.755196+00:00
+CA,Santa Clara,2820 Northwestern Pkwy (SJC34),5.7,22700,3.99,1.5,True,True,False,True,True,False,True,True,2012,12,https://www.datacentermap.com/usa/california/santa-clara/telx-scl2/specs/,2026-05-17T05:35:05.256393+00:00
+CA,Santa Clara,1525 Comstock St (SJC16),4.5,65500,3.15,1.5,True,True,False,True,True,False,True,True,1980,12,https://www.datacentermap.com/usa/california/santa-clara/1525-comstock-street/specs/,2026-05-17T05:39:15.563994+00:00
+CA,Santa Clara,2220 De La Cruz Blvd (SC1),52.6,238900,36.82,1.5,True,True,False,True,True,False,True,True,2011,12,https://www.datacentermap.com/usa/california/santa-clara/2220-de-la-cruz-boulevard/specs/,2026-05-17T05:44:57.218700+00:00
+CA,Santa Clara,2805 Lafayette St (SJC31),9.3,55800,6.51,1.5,True,True,False,True,True,False,True,True,1984,12,https://www.datacentermap.com/usa/california/santa-clara/2805-lafayette/specs/,2026-05-17T05:51:07.513946+00:00
+CA,Santa Clara,3011 Lafayette St (SJC11),6.0,51000,4.2,1.5,True,True,False,True,True,False,True,True,2001,12,https://www.datacentermap.com/usa/california/santa-clara/3011-lafayette-street/specs/,2026-05-17T05:56:39.677432+00:00
+CA,Santa Clara,CoreSite Silicon Valley (SV9),34.0,228000,23.8,1.5,True,False,False,True,True,False,False,False,2025,12,https://www.datacentermap.com/usa/california/santa-clara/coresite-silicon-valley-sv9/specs/,2026-05-17T06:03:45.975878+00:00
+CA,Los Angeles,2260 E El Segundo Blvd (LAX12),7.1,66800,4.97,1.5,True,True,False,True,True,False,True,True,1979,12,https://www.datacentermap.com/usa/california/los-angeles/2260-e-el-segundo/specs/,2026-05-17T06:31:07.642515+00:00
+CA,Los Angeles,Hivelocity - Los Angeles 2,10.0,490000,7.0,1.5,True,True,True,True,False,False,False,True,2000,12,https://www.datacentermap.com/usa/california/los-angeles/la2/specs/,2026-05-17T06:36:49.816216+00:00
+CA,Los Angeles,Prime Los Angeles LAX01-01,33.0,110310,23.1,1.5,False,False,False,False,True,False,True,True,2024,12,https://www.datacentermap.com/usa/california/los-angeles/prime-los-angeles/specs/,2026-05-17T06:45:38.506974+00:00
+CA,Santa Clara,1500 Space Park Dr (SJC14),4.8,,3.36,1.5,False,False,False,False,False,False,False,False,,12,https://www.datacentermap.com/usa/california/santa-clara/1550-space-park/specs/,2026-05-17T06:52:51.620121+00:00
+CA,Santa Clara,Cologix SV1,20.0,,14.0,1.5,False,False,False,False,False,False,False,False,,12,https://www.datacentermap.com/usa/california/santa-clara/cologix-sv1/specs/,2026-05-17T06:52:56.965595+00:00
+CA,Santa Clara,1725 Comstock St (SJC29),3.3,,2.31,1.5,False,False,False,False,False,False,False,False,,12,https://www.datacentermap.com/usa/california/santa-clara/1725-comstock-street/specs/,2026-05-17T06:53:01.788483+00:00
+CA,Santa Clara,GDC - Silicon Valley SV1 Data Center,16.0,,11.2,1.5,False,False,False,False,False,False,False,False,,12,https://www.datacentermap.com/usa/california/santa-clara/ntt-silicon-valley-sv1/specs/,2026-05-17T06:53:36.172419+00:00
+CA,Santa Clara,Equinix SV2,7.0,,4.9,1.5,False,False,False,False,False,False,False,False,,12,https://www.datacentermap.com/usa/california/santa-clara/equinix-santa-clara/specs/,2026-05-17T06:53:41.247002+00:00
+CA,Santa Clara,Prime Santa Clara SJC04,9.0,,6.3,1.5,False,False,False,False,False,False,False,False,,12,https://www.datacentermap.com/usa/california/santa-clara/prime-santa-clara-2/specs/,2026-05-17T06:53:46.077057+00:00
+CA,Santa Clara,Prime Santa Clara SJC02,9.0,,6.3,1.5,False,False,False,False,False,False,False,False,,12,https://www.datacentermap.com/usa/california/santa-clara/prime-santa-clara-1/specs/,2026-05-17T06:53:49.611878+00:00
+CA,Santa Clara,EdgeConneX Santa Clara - EDCSVC02,1.8,,1.26,1.5,False,False,False,False,False,False,False,False,,12,https://www.datacentermap.com/usa/california/santa-clara/svcolo-santa-clara/specs/,2026-05-17T06:53:55.692573+00:00
+CA,Santa Clara,Equinix SV4,8.0,,5.6,1.5,False,False,False,False,False,False,False,False,,12,https://www.datacentermap.com/usa/california/santa-clara/equinix-sunnyvale/specs/,2026-05-17T06:54:00.775458+00:00
+CA,Santa Clara,Prime Santa Clara SJC03,9.0,,6.3,1.5,False,False,False,False,False,False,False,False,,12,https://www.datacentermap.com/usa/california/santa-clara/prime-santa-clara-3/specs/,2026-05-17T06:54:05.358636+00:00
+CA,Santa Clara,DataBank SFO1 - Silicon Valley,3.0,,2.1,1.5,False,False,False,False,False,False,False,False,,12,https://www.datacentermap.com/usa/california/santa-clara/databank-sfo1/specs/,2026-05-17T06:54:10.310334+00:00
+CA,Santa Clara,Evocative SJC3,3.0,,2.1,1.5,False,False,False,False,False,False,False,False,,12,https://www.datacentermap.com/usa/california/santa-clara/wave-hosting/specs/,2026-05-17T06:54:15.168604+00:00
+CA,Santa Clara,Csquare - Silicon Valley SFO2-A,6.0,,4.2,1.5,False,False,False,False,False,False,False,False,,12,https://www.datacentermap.com/usa/california/santa-clara/cyxtera-sfo2a/specs/,2026-05-17T06:54:23.984775+00:00
+CA,Santa Clara,EdgeCore Silicon Valley SV01,36.0,,25.2,1.5,False,False,False,False,False,False,False,False,,12,https://www.datacentermap.com/usa/california/santa-clara/edgecore-silicon-valley-sv01/specs/,2026-05-17T06:54:28.019804+00:00
+CA,Santa Clara,Csquare - Silicon Valley SFO1-A,4.8,,3.36,1.5,False,False,False,False,False,False,False,False,,12,https://www.datacentermap.com/usa/california/santa-clara/cyxtera-sfo1a/specs/,2026-05-17T06:54:32.550469+00:00
+CA,Santa Clara,Colovore SJC01,9.0,,6.3,1.5,False,False,False,False,False,False,False,False,,12,https://www.datacentermap.com/usa/california/santa-clara/colovore/specs/,2026-05-17T06:54:37.779955+00:00
+CA,Santa Clara,Csquare - Silicon Valley SFO4-A,3.3,,2.31,1.5,False,False,False,False,False,False,False,False,,12,https://www.datacentermap.com/usa/california/santa-clara/centersquare-silicon-valley-sfo4-a/specs/,2026-05-17T06:54:42.634354+00:00
+CA,Santa Clara,Csquare - Silicon Valley SFO4-B,3.3,,2.31,1.5,False,False,False,False,False,False,False,False,,12,https://www.datacentermap.com/usa/california/santa-clara/centersquare-silicon-valley-sfo4-b/specs/,2026-05-17T06:54:47.555172+00:00
+CA,Santa Clara,CoreSite Santa Clara (SV8),18.0,,12.6,1.5,False,False,False,False,False,False,False,False,,12,https://www.datacentermap.com/usa/california/santa-clara/coresite-santa-clara-sv8/specs/,2026-05-17T06:54:55.894435+00:00
+CA,Santa Clara,Csquare - Silicon Valley SFO1-B,4.8,,3.36,1.5,False,False,False,False,False,False,False,False,,12,https://www.datacentermap.com/usa/california/santa-clara/cyxtera-sfo1b/specs/,2026-05-17T06:54:59.836176+00:00
+TX,Dallas,4025 Midway Rd (DFW11),13.1,13000,9.17,1.6,True,True,True,True,False,False,True,True,2008,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.923868+00:00
+TX,Dallas,8435 Stemmons Freeway (DFW36),5.7,29000,3.99,1.6,True,True,True,True,False,False,True,True,2003,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.923902+00:00
+TX,Dallas,2323 Bryan Street (DFW10),13.9,134000,9.73,1.6,True,True,True,True,False,False,True,True,2002,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.923911+00:00
+TX,Dallas,1232 Alma Road (DFW16),12.2,14000,8.54,1.6,True,True,True,True,False,False,True,True,2002,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.923918+00:00
+TX,Dallas,900 Quality Way (DFW17),5.2,80000,3.64,1.6,True,True,True,True,False,False,True,True,2000,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.923923+00:00
+TX,Dallas,850 E. Collins Boulevard (DFW28),11.7,110000,8.19,1.6,True,True,True,True,False,False,True,True,2017,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.923929+00:00
+TX,Dallas,2440 Marsh Lane (DFW12),9.0,72000,6.3,1.6,True,True,True,True,False,False,True,True,2008,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.923935+00:00
+TX,Dallas,Hivelocity - Dallas 1,4.1,5000,2.67,1.6,True,True,True,False,False,False,True,True,2007,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.923948+00:00
+TX,Dallas,Cologix DAL2,11.1,50000,7.55,1.6,True,True,True,True,False,False,True,True,2005,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.923955+00:00
+TX,Dallas,Flexential Dallas - Plano Data Center,5.9,142000,4.13,1.6,True,True,True,True,True,False,True,True,2003,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.923961+00:00
+TX,Dallas,Cologix DAL1,3.2,25000,2.18,1.6,True,True,True,True,False,False,True,True,2012,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.923966+00:00
+TX,Dallas,Cologix DAL3,9.8,99000,6.66,1.6,True,True,True,True,False,False,True,True,2015,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.923971+00:00
+TX,Dallas,Flexential Dallas - Richardson Data Center,11.7,175000,8.19,1.6,True,True,True,True,True,False,True,True,2012,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.923976+00:00
+TX,Dallas,Equinix DA1,8.5,152000,6.12,1.6,True,True,True,True,True,True,True,True,2018,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.923981+00:00
+TX,Dallas,Equinix DA6,44.8,176000,32.26,1.6,True,True,True,True,True,True,True,True,2005,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.923985+00:00
+TX,Dallas,Equinix DA2,36.7,66000,26.42,1.6,True,True,True,True,True,True,True,True,2006,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.923990+00:00
+TX,Dallas,DataBank DFW1 - Downtown Dallas,23.9,246000,16.73,1.6,True,True,True,True,True,False,True,True,2007,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.923994+00:00
+TX,Dallas,DataBank DFW2 - North Dallas,26.4,113000,18.48,1.6,True,True,True,True,True,False,True,True,2014,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.923999+00:00
+TX,Dallas,DataBank DFW4 - Dallas Empire,20.2,110000,14.14,1.6,True,True,True,True,True,False,True,True,2011,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924003+00:00
+TX,Dallas,DataBank DFW5 - Dallas Infomart,12.6,177000,8.82,1.6,True,True,True,True,True,False,True,True,2020,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924008+00:00
+TX,Dallas,QTS Fort Worth 1 DC1,16.4,480000,12.46,1.6,True,True,False,True,True,True,True,True,2020,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924013+00:00
+TX,Dallas,QTS Irving DC1 & DC2,75.6,198000,57.46,1.6,True,True,False,True,True,True,True,True,2015,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924017+00:00
+TX,Dallas,TierPoint Dallas,6.3,140000,4.35,1.6,True,True,True,True,True,False,True,True,2017,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924022+00:00
+TX,Dallas,Iron Mountain Data Centers - Dallas,7.8,85000,5.3,1.6,True,True,True,True,False,False,True,True,1999,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924026+00:00
+TX,Dallas,CyrusOne DFW1 - Carrollton,26.0,96000,19.5,1.6,True,True,False,True,True,True,True,True,2015,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924031+00:00
+TX,Dallas,CyrusOne DFW2 - Lewisville,38.1,114000,28.58,1.6,True,True,False,True,True,True,True,True,2015,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924036+00:00
+TX,Dallas,CyrusOne DFW3 - Allen,24.9,339000,18.67,1.6,True,True,False,True,True,True,True,True,2019,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924040+00:00
+TX,San Antonio,CyrusOne SAT1 - San Antonio,20.0,152000,15.0,1.6,True,True,False,True,True,True,True,True,2022,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924045+00:00
+TX,San Antonio,CyrusOne SAT2 - San Antonio,47.7,468000,35.78,1.6,True,True,False,True,True,True,True,True,2018,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924049+00:00
+TX,San Antonio,CyrusOne SAT3 - San Antonio,72.8,287000,54.6,1.6,True,True,False,True,True,True,True,True,2012,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924053+00:00
+TX,San Antonio,CyrusOne SAT4 - San Antonio,79.8,151000,59.85,1.6,True,True,False,True,True,True,True,True,2020,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924057+00:00
+TX,San Antonio,Vantage TX11 - San Antonio,31.8,190000,24.8,1.6,True,False,False,True,True,True,True,True,2011,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924062+00:00
+TX,San Antonio,Vantage TX12 - San Antonio,39.9,285000,31.12,1.6,True,False,False,True,True,True,True,True,2020,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924066+00:00
+TX,San Antonio,QTS San Antonio 2,48.0,138000,36.48,1.6,True,True,False,True,True,True,True,True,2015,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924072+00:00
+TX,San Antonio,DataBank SAT1 - San Antonio,19.1,132000,13.37,1.6,True,True,True,True,True,False,True,True,2008,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924078+00:00
+TX,Austin,Data Foundry - Texas 1,19.5,130000,13.65,1.6,True,True,True,True,False,False,True,True,2000,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924112+00:00
+TX,Austin,Data Foundry - Texas 2,13.9,26000,9.73,1.6,True,True,True,True,False,False,True,True,2017,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924117+00:00
+TX,Austin,Element Critical Austin One,15.3,117000,10.71,1.6,True,True,True,True,False,False,True,True,2010,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924122+00:00
+TX,Austin,CyrusOne AUS2 - Austin,17.8,306000,13.35,1.6,True,True,False,True,True,True,True,True,2019,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924126+00:00
+TX,Austin,CyrusOne AUS3 - Austin,10.2,455000,7.65,1.6,True,True,False,True,True,True,True,True,2013,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924130+00:00
+TX,Austin,DataBank AUS1 - Austin,29.2,197000,20.44,1.6,True,True,True,True,True,False,True,True,2016,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924134+00:00
+TX,Austin,Iron Mountain Data Centers Hutto-1,23.1,177000,15.71,1.6,True,True,True,True,False,False,True,True,2007,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924139+00:00
+TX,Austin,Iron Mountain Data Centers Hutto-2,21.5,116000,14.62,1.6,True,True,True,True,False,False,True,True,2004,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924144+00:00
+TX,Austin,Iron Mountain Data Centers Hutto-3,6.4,159000,4.35,1.6,True,True,True,True,False,False,True,True,2015,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924148+00:00
+TX,Houston,CyrusOne HOU1 - Houston,76.7,559000,57.53,1.6,True,True,False,True,True,True,True,True,2005,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924154+00:00
+TX,Houston,Flexential Houston,12.8,98000,8.96,1.6,True,True,True,True,True,False,True,True,2003,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924158+00:00
+TX,Houston,Lumen Houston 1,9.4,71000,6.11,1.6,True,True,True,False,False,False,True,True,2004,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924163+00:00
+TX,Houston,DataBank HOU1 - Houston,9.5,82000,6.65,1.6,True,True,True,True,True,False,True,True,2018,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924168+00:00
+TX,Houston,TierPoint Houston,17.2,31000,11.87,1.6,True,True,True,True,True,False,True,True,2015,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924172+00:00
+TX,Houston,Cologix HOU1,12.6,117000,8.57,1.6,True,True,True,True,False,False,True,True,2018,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924177+00:00
+TX,Houston,Equinix HU1,39.5,94000,28.44,1.6,True,True,True,True,True,True,True,True,2014,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924181+00:00
+TX,Houston,Iron Mountain Data Centers Houston,23.8,58000,16.18,1.6,True,True,True,True,False,False,True,True,2014,6,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924186+00:00
+GA,Atlanta,QTS Atlanta - Metro,88.5,353000,67.26,1.58,True,True,False,True,True,True,True,True,2009,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924190+00:00
+GA,Atlanta,Equinix AT1,46.8,314000,33.7,1.58,True,True,True,True,True,True,True,True,2005,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924195+00:00
+GA,Atlanta,Equinix AT2,37.1,189000,26.71,1.58,True,True,True,True,True,True,True,True,2010,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924199+00:00
+GA,Atlanta,Equinix AT3,24.7,231000,17.78,1.58,True,True,True,True,True,True,True,True,2002,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924203+00:00
+GA,Atlanta,DataBank ATL1,9.7,44000,6.79,1.58,True,True,True,True,True,False,True,True,2000,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924207+00:00
+GA,Atlanta,DataBank ATL2,18.9,80000,13.23,1.58,True,True,True,True,True,False,True,True,2007,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924211+00:00
+GA,Atlanta,Flexential Atlanta,2.1,133000,1.47,1.58,True,True,True,True,True,False,True,True,2001,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924215+00:00
+GA,Atlanta,Cologix ATL1,5.0,110000,3.4,1.58,True,True,True,True,False,False,True,True,2011,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924220+00:00
+GA,Atlanta,Cologix ATL2,2.9,39000,1.97,1.58,True,True,True,True,False,False,True,True,2016,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924224+00:00
+GA,Atlanta,Iron Mountain ATL1,7.7,52000,5.24,1.58,True,True,True,True,False,False,True,True,2016,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924229+00:00
+GA,Atlanta,CyrusOne ATL1 - Atlanta,50.3,206000,37.72,1.58,True,True,False,True,True,True,True,True,2020,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924233+00:00
+GA,Atlanta,TierPoint Atlanta,14.9,44000,10.28,1.58,True,True,True,True,True,False,True,True,2003,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924237+00:00
+GA,Atlanta,Digital Realty ATL1,81.8,383000,60.53,1.58,True,True,False,True,True,True,True,True,2017,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924242+00:00
+GA,Atlanta,Digital Realty ATL2,60.3,683000,44.62,1.58,True,True,False,True,True,True,True,True,2007,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924246+00:00
+GA,Lithia Springs,Switch LAS VEGAS Data Center,2.2,111000,1.54,1.58,True,True,True,True,False,False,True,True,2003,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924251+00:00
+GA,Lithia Springs,Vantage ATL01,52.3,311000,40.79,1.58,True,False,False,True,True,True,True,True,2017,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924256+00:00
+GA,Lithia Springs,DataBank ATL3 - Lithia Springs,6.8,70000,4.76,1.58,True,True,True,True,True,False,True,True,2014,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924260+00:00
+NC,Charlotte,Equinix CH1,16.2,373000,11.66,1.55,True,True,True,True,True,True,True,True,2013,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924264+00:00
+NC,Charlotte,DataBank CLT1,24.8,218000,17.36,1.55,True,True,True,True,True,False,True,True,2003,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924268+00:00
+NC,Charlotte,TierPoint Charlotte,2.8,149000,1.93,1.55,True,True,True,True,True,False,True,True,2000,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924273+00:00
+NC,Charlotte,Flexential Charlotte,19.4,168000,13.58,1.55,True,True,True,True,True,False,True,True,2007,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924277+00:00
+NC,Charlotte,Cologix CLT1,4.2,65000,2.86,1.55,True,True,True,True,False,False,True,True,2007,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924287+00:00
+NC,Charlotte,Iron Mountain Charlotte,22.0,183000,14.96,1.55,True,True,True,True,False,False,True,True,2003,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924292+00:00
+NC,Charlotte,CyrusOne CLT1,36.5,592000,27.38,1.55,True,True,False,True,True,True,True,True,2013,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924296+00:00
+NC,Durham,Flexential Durham,18.7,145000,13.09,1.55,True,True,True,True,True,False,True,True,2009,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924301+00:00
+NC,Durham,DataBank RDU1,14.4,240000,10.08,1.55,True,True,True,True,True,False,True,True,2017,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924305+00:00
+NC,Durham,TierPoint Raleigh-Durham,12.6,83000,8.69,1.55,True,True,True,True,True,False,True,True,2006,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924310+00:00
+NC,Raleigh,Lumen Raleigh,3.7,77000,2.41,1.55,True,True,True,False,False,False,True,True,2013,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924314+00:00
+NC,Raleigh,Cologix RDU1,11.6,21000,7.89,1.55,True,True,True,True,False,False,True,True,2011,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924319+00:00
+NC,Raleigh,DataBank RDU2,4.5,158000,3.15,1.55,True,True,True,True,True,False,True,True,2016,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924323+00:00
+OH,Columbus,Equinix CM1,46.4,235000,33.41,1.57,True,True,True,True,True,True,True,True,2000,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924327+00:00
+OH,Columbus,DataBank CMH1,28.9,47000,20.23,1.57,True,True,True,True,True,False,True,True,2005,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924331+00:00
+OH,Columbus,Flexential Columbus,3.2,30000,2.24,1.57,True,True,True,True,True,False,True,True,2007,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924335+00:00
+OH,Columbus,Cologix CMH1,7.2,113000,4.9,1.57,True,True,True,True,False,False,True,True,2019,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924339+00:00
+OH,Columbus,TierPoint Columbus,5.9,97000,4.07,1.57,True,True,True,True,True,False,True,True,2019,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924344+00:00
+OH,Columbus,Iron Mountain Columbus,4.8,141000,3.26,1.57,True,True,True,True,False,False,True,True,2016,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924348+00:00
+OH,Columbus,CyrusOne COL1 - Columbus,46.6,566000,34.95,1.57,True,True,False,True,True,True,True,True,2011,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924352+00:00
+OH,Columbus,QTS Columbus,70.3,288000,53.43,1.57,True,True,False,True,True,True,True,True,2011,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924356+00:00
+OH,Cleveland,DataBank CLE1,13.7,177000,9.59,1.57,True,True,True,True,True,False,True,True,2009,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924360+00:00
+OH,Cleveland,Flexential Cleveland,10.2,168000,7.14,1.57,True,True,True,True,True,False,True,True,2002,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924365+00:00
+OH,Cleveland,TierPoint Cleveland,2.1,100000,1.45,1.57,True,True,True,True,True,False,True,True,2018,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924369+00:00
+IL,Chicago,Equinix CH2,49.8,75000,35.86,1.52,True,True,True,True,True,True,True,True,2005,9,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924374+00:00
+IL,Chicago,Equinix CH3,27.8,96000,20.02,1.52,True,True,True,True,True,True,True,True,2010,9,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924378+00:00
+IL,Chicago,Equinix CH4,44.6,357000,32.11,1.52,True,True,True,True,True,True,True,True,2010,9,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924382+00:00
+IL,Chicago,DataBank CHI1,10.7,126000,7.49,1.52,True,True,True,True,True,False,True,True,2017,9,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924386+00:00
+IL,Chicago,DataBank CHI2,22.0,164000,15.4,1.52,True,True,True,True,True,False,True,True,2020,9,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924390+00:00
+IL,Chicago,Cologix CHI1,8.9,85000,6.05,1.52,True,True,True,True,False,False,True,True,2018,9,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924394+00:00
+IL,Chicago,Cologix CHI2,5.9,84000,4.01,1.52,True,True,True,True,False,False,True,True,2005,9,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924398+00:00
+IL,Chicago,Iron Mountain CHI1,8.8,181000,5.98,1.52,True,True,True,True,False,False,True,True,2015,9,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924402+00:00
+IL,Chicago,Iron Mountain CHI2,6.4,77000,4.35,1.52,True,True,True,True,False,False,True,True,2004,9,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924406+00:00
+IL,Chicago,Digital Realty CHI1,88.4,262000,65.42,1.52,True,True,False,True,True,True,True,True,2012,9,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924411+00:00
+IL,Chicago,Digital Realty CHI2,64.6,300000,47.8,1.52,True,True,False,True,True,True,True,True,2005,9,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924415+00:00
+IL,Chicago,TierPoint Chicago,3.5,75000,2.42,1.52,True,True,True,True,True,False,True,True,2008,9,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924420+00:00
+IL,Chicago,Flexential Chicago,2.8,73000,1.96,1.52,True,True,True,True,True,False,True,True,2004,9,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924424+00:00
+IL,Chicago,QTS Chicago,67.3,257000,51.15,1.52,True,True,False,True,True,True,True,True,2017,9,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924428+00:00
+IL,Chicago,CyrusOne CHI1 - Chicago,48.6,302000,36.45,1.52,True,True,False,True,True,True,True,True,2005,9,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924433+00:00
+IL,Chicago,Lumen Chicago 1,2.0,76000,1.3,1.52,True,True,True,False,False,False,True,True,1999,9,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924437+00:00
+IL,Chicago,Lumen Chicago 2,5.9,68000,3.84,1.52,True,True,True,False,False,False,True,True,2013,9,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924444+00:00
+AZ,Phoenix,Equinix PH1,29.9,200000,21.53,1.65,True,True,True,True,True,True,True,True,2000,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924449+00:00
+AZ,Phoenix,Equinix PH2,18.9,364000,13.61,1.65,True,True,True,True,True,True,True,True,2000,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924453+00:00
+AZ,Phoenix,DataBank PHX1,27.3,76000,19.11,1.65,True,True,True,True,True,False,True,True,2007,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924457+00:00
+AZ,Phoenix,DataBank PHX2,21.0,107000,14.7,1.65,True,True,True,True,True,False,True,True,2017,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924463+00:00
+AZ,Phoenix,CyrusOne PHX1 - Phoenix,71.9,291000,53.93,1.65,True,True,False,True,True,True,True,True,2009,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924467+00:00
+AZ,Phoenix,Iron Mountain Phoenix,23.4,70000,15.91,1.65,True,True,True,True,False,False,True,True,2003,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924471+00:00
+AZ,Phoenix,Flexential Phoenix,19.6,149000,13.72,1.65,True,True,True,True,True,False,True,True,2013,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924476+00:00
+AZ,Phoenix,TierPoint Phoenix,2.4,115000,1.66,1.65,True,True,True,True,True,False,True,True,2010,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924480+00:00
+AZ,Phoenix,Vantage AZ01,121.7,499000,94.93,1.65,True,False,False,True,True,True,True,True,2020,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924484+00:00
+AZ,Phoenix,Cologix PHX1,13.2,100000,8.98,1.65,True,True,True,True,False,False,True,True,2009,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924489+00:00
+AZ,Chandler,DataBank PHX3 - Chandler,7.3,184000,5.11,1.65,True,True,True,True,True,False,True,True,2012,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924493+00:00
+AZ,Chandler,CyrusOne PHX2 - Chandler,71.1,526000,53.32,1.65,True,True,False,True,True,True,True,True,2012,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924497+00:00
+NJ,Parsippany,Equinix NY5,14.0,371000,10.08,1.62,True,True,True,True,True,True,True,True,2010,7,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924501+00:00
+NJ,Parsippany,DataBank NJ1,11.2,204000,7.84,1.62,True,True,True,True,True,False,True,True,2007,7,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924505+00:00
+NJ,Parsippany,Cologix NJ1,4.9,84000,3.33,1.62,True,True,True,True,False,False,True,True,2013,7,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924510+00:00
+NJ,Parsippany,Iron Mountain NJ1,10.2,176000,6.94,1.62,True,True,True,True,False,False,True,True,2006,7,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924514+00:00
+NJ,Parsippany,TierPoint New Jersey,7.6,86000,5.24,1.62,True,True,True,True,True,False,True,True,2017,7,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924519+00:00
+NJ,Secaucus,Equinix NY4,19.9,59000,14.33,1.62,True,True,True,True,True,True,True,True,2007,7,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924523+00:00
+NJ,Secaucus,Equinix NY7,13.0,386000,9.36,1.62,True,True,True,True,True,True,True,True,2007,7,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924527+00:00
+NJ,Secaucus,DataBank NJ2 - Secaucus,4.0,161000,2.8,1.62,True,True,True,True,True,False,True,True,2011,7,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924531+00:00
+NJ,Secaucus,Lumen Secaucus 1,7.6,31000,4.94,1.62,True,True,True,False,False,False,True,True,2014,7,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924538+00:00
+NJ,Newark,DataBank NJ3 - Newark,29.6,55000,20.72,1.62,True,True,True,True,True,False,True,True,2018,7,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924542+00:00
+NJ,Newark,Cologix NJ2,4.5,19000,3.06,1.62,True,True,True,True,False,False,True,True,2014,7,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924546+00:00
+NJ,Newark,Iron Mountain Newark,3.0,187000,2.04,1.62,True,True,True,True,False,False,True,True,2015,7,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924551+00:00
+NJ,Newark,Flexential Newark,14.4,170000,10.08,1.62,True,True,True,True,True,False,True,True,2006,7,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924555+00:00
+OR,Portland,Equinix PT1,21.4,74000,15.41,1.45,True,True,True,True,True,True,True,True,2009,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924559+00:00
+OR,Portland,Equinix PT2,33.0,282000,23.76,1.45,True,True,True,True,True,True,True,True,2002,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924563+00:00
+OR,Portland,DataBank PDX1,22.4,96000,15.68,1.45,True,True,True,True,True,False,True,True,2009,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924567+00:00
+OR,Portland,Cologix PDX1,10.7,49000,7.28,1.45,True,True,True,True,False,False,True,True,2010,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924571+00:00
+OR,Portland,TierPoint Portland,10.9,44000,7.52,1.45,True,True,True,True,True,False,True,True,2012,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924576+00:00
+OR,Portland,Flexential Portland,14.2,164000,9.94,1.45,True,True,True,True,True,False,True,True,2019,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924580+00:00
+OR,Portland,Iron Mountain Portland,15.5,99000,10.54,1.45,True,True,True,True,False,False,True,True,1998,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924584+00:00
+OR,Portland,Lumen Portland 1,3.7,24000,2.41,1.45,True,True,True,False,False,False,True,True,2013,5,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924589+00:00
+CO,Denver,Equinix DE1,32.3,162000,23.26,1.55,True,True,True,True,True,True,True,True,2013,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924593+00:00
+CO,Denver,Equinix DE2,24.9,124000,17.93,1.55,True,True,True,True,True,True,True,True,2014,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924597+00:00
+CO,Denver,DataBank DEN1,24.4,241000,17.08,1.55,True,True,True,True,True,False,True,True,2005,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924601+00:00
+CO,Denver,DataBank DEN2,20.8,92000,14.56,1.55,True,True,True,True,True,False,True,True,2020,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924605+00:00
+CO,Denver,Cologix DEN1,10.1,24000,6.87,1.55,True,True,True,True,False,False,True,True,2008,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924609+00:00
+CO,Denver,Cologix DEN2,10.7,38000,7.28,1.55,True,True,True,True,False,False,True,True,2007,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924614+00:00
+CO,Denver,Flexential Denver,4.7,27000,3.29,1.55,True,True,True,True,True,False,True,True,2015,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924618+00:00
+CO,Denver,Iron Mountain Denver,16.4,160000,11.15,1.55,True,True,True,True,False,False,True,True,2012,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924622+00:00
+CO,Denver,TierPoint Denver,8.6,101000,5.93,1.55,True,True,True,True,True,False,True,True,2006,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924627+00:00
+CO,Denver,Lumen Denver 1,7.5,36000,4.88,1.55,True,True,True,False,False,False,True,True,2007,4,synthetic — specs estimated from operator benchmarks,2026-05-17T07:24:20.924631+00:00
