@@ -8,7 +8,7 @@
       "src": "react-frontend/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "react-frontend/dist"
+        "distDir": "dist"
       }
     }
   ],
@@ -20,6 +20,6 @@
     { "src": "/health",            "dest": "/api/index.py" },
     { "src": "/docs",              "dest": "/api/index.py" },
     { "src": "/openapi.json",      "dest": "/api/index.py" },
-    { "src": "/(.*)",              "dest": "/react-frontend/dist/$1" }
+    { "src": "/(.*)",              "dest": "/$1" }
   ]
 }
