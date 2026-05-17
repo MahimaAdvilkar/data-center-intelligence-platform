@@ -1,0 +1,25 @@
+{
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "react-frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "react-frontend/dist"
+      }
+    }
+  ],
+  "routes": [
+    { "src": "/gravity/(.*)",      "dest": "/api/index.py" },
+    { "src": "/optimization/(.*)", "dest": "/api/index.py" },
+    { "src": "/cluster/(.*)",      "dest": "/api/index.py" },
+    { "src": "/ai/(.*)",           "dest": "/api/index.py" },
+    { "src": "/health",            "dest": "/api/index.py" },
+    { "src": "/docs",              "dest": "/api/index.py" },
+    { "src": "/openapi.json",      "dest": "/api/index.py" },
+    { "src": "/(.*)",              "dest": "/react-frontend/dist/$1" }
+  ]
+}
