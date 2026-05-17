@@ -914,10 +914,29 @@ elif page == "Site Scout Agent":
     # Download previous report
     if "last_scout_report" in st.session_state:
         st.markdown("---")
-        report_text = st.session_state["last_scout_report"]["report"]
-        st.download_button(
-            label="Download Report as .txt",
-            data=report_text,
-            file_name="site_scout_report.txt",
-            mime="text/plain",
-        )
+        result_dl = st.session_state["last_scout_report"]
+
+        col_pdf, col_txt = st.columns([1, 1])
+
+        with col_pdf:
+            try:
+                from backend.core.report_generator import generate_pdf_report
+                pdf_bytes = generate_pdf_report(result_dl)
+                st.download_button(
+                    label="Download Report as PDF",
+                    data=pdf_bytes,
+                    file_name="site_scout_report.pdf",
+                    mime="application/pdf",
+                    use_container_width=True,
+                )
+            except Exception as pdf_err:
+                st.warning(f"PDF generation unavailable: {pdf_err}")
+
+        with col_txt:
+            st.download_button(
+                label="Download Report as .txt",
+                data=result_dl["report"],
+                file_name="site_scout_report.txt",
+                mime="text/plain",
+                use_container_width=True,
+            )
