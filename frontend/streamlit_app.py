@@ -656,10 +656,18 @@ elif page == "AI Analyst":
 
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if not api_key:
-        st.warning("Set your `ANTHROPIC_API_KEY` environment variable to enable the AI Analyst.")
-        st.code("export ANTHROPIC_API_KEY=your_key_here", language="bash")
-        st.markdown("Then restart the Streamlit app.")
-        st.stop()
+        with st.sidebar:
+            st.markdown("### API Key")
+            api_key = st.text_input(
+                "Anthropic API Key",
+                type="password",
+                placeholder="sk-ant-...",
+                help="Get your key at console.anthropic.com",
+            )
+        if not api_key:
+            st.info("Enter your Anthropic API key in the sidebar to activate the AI Analyst.")
+            st.markdown("Get a free key at **[console.anthropic.com](https://console.anthropic.com)**")
+            st.stop()
 
     # Suggested questions
     st.markdown("**Try asking:**")
