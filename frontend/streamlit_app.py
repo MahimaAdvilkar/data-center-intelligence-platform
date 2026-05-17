@@ -1,0 +1,483 @@
+import sys
+from pathlib import Path
+
+# Make backend importable when running from the frontend folder
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+import streamlit as st
+import pandas as pd
+import numpy as np
+import joblib
+import random
+import plotly.express as px
+import plotly.graph_objects as go
+from deap import base, creator, tools, algorithms
+
+from backend.core.config import (
+    DC_CLUSTERED_CSV, DC_FINAL_CSV, GRAVITY_CSV, RF_MODEL_PATH, SCALER_PATH
+)
+
+# ── Page config ────────────────────────────────────────────────────────────────
+st.set_page_config(
+    page_title="DC Intelligence Platform",
+    page_icon="🏢",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
+# ── Sidebar navigation ─────────────────────────────────────────────────────────
+st.sidebar.title("Data Center Intelligence Platform")
+st.sidebar.markdown("---")
+page = st.sidebar.radio(
+    "Navigate",
+    ["Overview", "Site Finder (Gravity Model)", "Optimizer (NSGA-II)", "Cluster Predictor", "Data Explorer"],
+)
+st.sidebar.markdown("---")
+st.sidebar.caption("Built on top of the Capstone Project | Phase 1 MVP")
+
+
+# ── Shared loaders ─────────────────────────────────────────────────────────────
+@st.cache_data
+def load_clustered():
+    return pd.read_csv(DC_CLUSTERED_CSV)
+
+@st.cache_data
+def load_final():
+    df = pd.read_csv(DC_FINAL_CSV)
+    service_cols = ["FULL_CABINETS","PARTIAL_CABINETS","SHARED_RACKSPACE","CAGES",
+                    "SUITES","BUILD_TO_SUIT","FOOTPRINTS","REMOTE_HANDS"]
+    df["SERVICE_SCORE"] = df[service_cols].astype(int).sum(axis=1)
+    df["FACILITY_AGE"] = 2025 - df["YEAR_OPERATIONAL"]
+    return df
+
+@st.cache_data
+def load_gravity():
+    return pd.read_csv(GRAVITY_CSV)
+
+@st.cache_resource
+def load_ml_models():
+    rf = joblib.load(RF_MODEL_PATH)
+    scaler = joblib.load(SCALER_PATH)
+    return rf, scaler
+
+
+COST_PARAMS = ["Water", "Energy", "Workforce", "LandCost"]
+BENEFIT_PARAMS = ["Renewable", "LandAvail", "Network", "Climate"]
+CLUSTER_LABELS = {0: "Hyperscale / High-Capacity", 1: "Mid-Tier / Regional", 2: "Edge / Colocation"}
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PAGE 1 — Overview
+# ═══════════════════════════════════════════════════════════════════════════════
+if page == "Overview":
+    st.title("Data Center Intelligence Platform")
+    st.markdown("An AI-powered platform for data center site selection, optimization, and classification.")
+    st.markdown("---")
+
+    df = load_clustered()
+    df_final = load_final()
+    df_gravity = load_gravity()
+
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("US Data Centers", len(df))
+    col2.metric("States Covered", df["STATE"].nunique())
+    col3.metric("Indian Cities Scored", len(df_gravity))
+    col4.metric("Clusters Identified", df["Cluster"].nunique())
+
+    st.markdown("---")
+    col_a, col_b = st.columns(2)
+
+    with col_a:
+        st.subheader("Data Centers by State")
+        state_counts = df["STATE"].value_counts().reset_index()
+        state_counts.columns = ["State", "Count"]
+        fig = px.bar(state_counts, x="State", y="Count", color="Count",
+                     color_continuous_scale="Blues", template="plotly_white")
+        st.plotly_chart(fig, use_container_width=True)
+
+    with col_b:
+        st.subheader("PCA — Cluster Visualization")
+        fig2 = px.scatter(
+            df, x="PCA1", y="PCA2", color=df["Cluster"].astype(str),
+            hover_data=["CITY", "STATE", "ENERGY"],
+            labels={"color": "Cluster"},
+            color_discrete_sequence=px.colors.qualitative.Set2,
+            template="plotly_white",
+        )
+        st.plotly_chart(fig2, use_container_width=True)
+
+    st.markdown("---")
+    st.subheader("Platform Capabilities")
+    c1, c2, c3, c4 = st.columns(4)
+    c1.info("**Site Finder**\nGravity model scores 13 Indian cities across 8 infrastructure parameters.")
+    c2.info("**Optimizer**\nNSGA-II Pareto optimization across PUE, IXP, service score, and facility age.")
+    c3.info("**Cluster Predictor**\nRandom Forest classifier predicts the tier of a new data center.")
+    c4.info("**Data Explorer**\nBrowse, filter, and compare the full US data center dataset.")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PAGE 2 — Site Finder (Gravity Model)
+# ═══════════════════════════════════════════════════════════════════════════════
+elif page == "Site Finder (Gravity Model)":
+    st.title("Site Finder — Gravity Model")
+    st.markdown("Rank Indian cities for data center siting using weighted infrastructure parameters.")
+    st.markdown("---")
+
+    df = load_gravity()
+
+    with st.expander("Customize Parameter Weights", expanded=False):
+        st.markdown("Weights must sum to **1.0**. Adjust based on your priorities.")
+        col1, col2 = st.columns(2)
+        with col1:
+            w_energy = st.slider("Energy Cost (lower = better)", 0.0, 0.5, 0.20, 0.01)
+            w_network = st.slider("Network Connectivity (higher = better)", 0.0, 0.5, 0.20, 0.01)
+            w_land_cost = st.slider("Land Cost (lower = better)", 0.0, 0.4, 0.15, 0.01)
+            w_renewable = st.slider("Renewable Energy % (higher = better)", 0.0, 0.3, 0.10, 0.01)
+        with col2:
+            w_climate = st.slider("Climate Resilience (higher = better)", 0.0, 0.3, 0.10, 0.01)
+            w_workforce = st.slider("Workforce Cost (lower = better)", 0.0, 0.2, 0.05, 0.01)
+            w_water = st.slider("Water Cost (lower = better)", 0.0, 0.2, 0.05, 0.01)
+            w_land_avail = st.slider("Land Availability (higher = better)", 0.0, 0.2, 0.05, 0.01)
+
+        weights = {
+            "Water": w_water, "Energy": w_energy, "Workforce": w_workforce,
+            "LandCost": w_land_cost, "Renewable": w_renewable,
+            "LandAvail": w_land_avail, "Network": w_network, "Climate": w_climate,
+        }
+        total = sum(weights.values())
+        if abs(total - 1.0) > 0.02:
+            st.warning(f"Weights sum to {total:.2f}. Please adjust to sum to 1.0.")
+    else:
+        weights = {
+            "Water": 0.05, "Energy": 0.20, "Workforce": 0.05, "LandCost": 0.15,
+            "Renewable": 0.10, "LandAvail": 0.05, "Network": 0.20, "Climate": 0.10,
+        }
+
+    # Compute scores
+    scored = df.copy()
+    for param, weight in weights.items():
+        if param not in scored.columns:
+            continue
+        mn, mx = scored[param].min(), scored[param].max()
+        if mx == mn:
+            scored[param + "_norm"] = 0.0
+        elif param in COST_PARAMS:
+            scored[param + "_norm"] = (mx - scored[param]) / (mx - mn)
+        else:
+            scored[param + "_norm"] = (scored[param] - mn) / (mx - mn)
+
+    scored["Score"] = sum(
+        scored[p + "_norm"] * w for p, w in weights.items() if p + "_norm" in scored.columns
+    )
+    scored = scored.sort_values("Score", ascending=False).reset_index(drop=True)
+    scored["Rank"] = scored.index + 1
+
+    col_chart, col_table = st.columns([1.5, 1])
+
+    with col_chart:
+        st.subheader("City Attraction Scores")
+        fig = px.bar(
+            scored, x="Score", y="City", orientation="h",
+            color="Score", color_continuous_scale="Teal",
+            text=scored["Score"].round(3), template="plotly_white",
+        )
+        fig.update_traces(textposition="outside")
+        fig.update_layout(yaxis={"categoryorder": "total ascending"})
+        st.plotly_chart(fig, use_container_width=True)
+
+    with col_table:
+        st.subheader("Rankings")
+        st.dataframe(
+            scored[["Rank", "City", "Score"]].assign(Score=scored["Score"].round(4)),
+            use_container_width=True, hide_index=True,
+        )
+
+    st.markdown("---")
+    st.subheader("Radar — Top 3 Cities")
+    top3 = scored.head(3)
+    radar_params = list(weights.keys())
+    fig_radar = go.Figure()
+    for _, row in top3.iterrows():
+        fig_radar.add_trace(go.Scatterpolar(
+            r=[row[p + "_norm"] for p in radar_params],
+            theta=radar_params, fill="toself", name=row["City"],
+        ))
+    fig_radar.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
+                             template="plotly_white")
+    st.plotly_chart(fig_radar, use_container_width=True)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PAGE 3 — Optimizer (NSGA-II)
+# ═══════════════════════════════════════════════════════════════════════════════
+elif page == "Optimizer (NSGA-II)":
+    st.title("Multi-Objective Optimizer — NSGA-II")
+    st.markdown("Find Pareto-optimal data centers balancing PUE, network density, services, and facility age.")
+    st.markdown("---")
+
+    with st.sidebar:
+        st.markdown("### Optimization Settings")
+        n_gen = st.slider("Generations", 10, 100, 30)
+        n_pop = st.slider("Population Size", 10, 100, 30)
+        seed = st.number_input("Random Seed", value=42)
+        st.markdown("### Scoring Weights")
+        w_pue = st.slider("PUE weight", 0.0, 1.0, 0.4, 0.05)
+        w_ixp = st.slider("IXP Count weight", 0.0, 1.0, 0.3, 0.05)
+        w_svc = st.slider("Service Score weight", 0.0, 1.0, 0.2, 0.05)
+        w_age = st.slider("Facility Age weight", 0.0, 1.0, 0.1, 0.05)
+        run_btn = st.button("Run Optimization", type="primary")
+
+    if run_btn:
+        with st.spinner("Running NSGA-II optimization..."):
+            df = load_final()
+            random.seed(int(seed))
+            N = len(df)
+
+            if not hasattr(creator, "FitnessMulti"):
+                creator.create("FitnessMulti", base.Fitness, weights=(-1.0, -1.0, -1.0, -1.0))
+            if not hasattr(creator, "Individual"):
+                creator.create("Individual", list, fitness=creator.FitnessMulti)
+
+            toolbox = base.Toolbox()
+            toolbox.register("attr_bool", random.randint, 0, 1)
+            toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_bool, N)
+            toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+
+            def is_valid(row):
+                return row["IT EQUIPMENT POWER"] >= 1 and row["AREA"] >= 10000 and row["SERVICE_SCORE"] >= 4
+
+            def evaluate(ind):
+                sel = df[[bool(x) for x in ind]]
+                valid = sel[sel.apply(is_valid, axis=1)]
+                if valid.empty:
+                    return (99999.0,) * 4
+                return (
+                    valid["State_Aggregated_PUE"].sum(),
+                    -valid["State_Aggregated_IXP_Count"].sum(),
+                    -valid["SERVICE_SCORE"].sum(),
+                    valid["FACILITY_AGE"].mean(),
+                )
+
+            toolbox.register("evaluate", evaluate)
+            toolbox.register("mate", tools.cxTwoPoint)
+            toolbox.register("mutate", tools.mutFlipBit, indpb=0.05)
+            toolbox.register("select", tools.selNSGA2)
+
+            pop = toolbox.population(n=n_pop)
+            for ind in pop:
+                ind.fitness.values = toolbox.evaluate(ind)
+            for _ in range(n_gen):
+                offspring = algorithms.varAnd(pop, toolbox, cxpb=0.7, mutpb=0.2)
+                for ind in offspring:
+                    ind.fitness.values = toolbox.evaluate(ind)
+                pop = toolbox.select(pop + offspring, k=n_pop)
+
+            pareto = tools.sortNondominated(pop, len(pop), first_front_only=True)[0]
+
+            rows = []
+            for i, ind in enumerate(pareto):
+                sel = df[[bool(x) for x in ind]]
+                for _, row in sel.iterrows():
+                    rows.append({
+                        "Solution": i + 1, "Location": row["LOCATION"],
+                        "City": row["CITY"], "State": row["STATE"],
+                        "PUE": round(float(row["State_Aggregated_PUE"]), 3),
+                        "IXP Count": int(row["State_Aggregated_IXP_Count"]),
+                        "Service Score": int(row["SERVICE_SCORE"]),
+                        "Facility Age": int(row["FACILITY_AGE"]),
+                    })
+
+            if not rows:
+                st.error("No valid Pareto solutions found. Try adjusting constraints.")
+            else:
+                res = pd.DataFrame(rows)
+
+                def norm(s):
+                    r = s.max() - s.min()
+                    return (s - s.min()) / r if r != 0 else pd.Series([0.5] * len(s))
+
+                res["Weighted Score"] = (
+                    -norm(res["PUE"]) * w_pue
+                    + norm(res["IXP Count"]) * w_ixp
+                    + norm(res["Service Score"]) * w_svc
+                    - norm(res["Facility Age"]) * w_age
+                ).round(4)
+                res = res.sort_values("Weighted Score", ascending=False).reset_index(drop=True)
+                res.insert(0, "Rank", res.index + 1)
+
+                st.success(f"Found {len(pareto)} Pareto-optimal solutions covering {len(res)} data centers.")
+                st.markdown("---")
+
+                col_a, col_b = st.columns([2, 1])
+                with col_a:
+                    st.subheader("Pareto Front — PUE vs IXP Count")
+                    fig = px.scatter(
+                        res, x="PUE", y="IXP Count", color="Weighted Score",
+                        hover_data=["Location", "City", "State", "Service Score"],
+                        color_continuous_scale="Viridis", size="Service Score",
+                        template="plotly_white",
+                    )
+                    st.plotly_chart(fig, use_container_width=True)
+
+                with col_b:
+                    st.subheader("Top 10 Results")
+                    st.dataframe(
+                        res[["Rank","Location","City","State","PUE","IXP Count","Service Score","Weighted Score"]].head(10),
+                        use_container_width=True, hide_index=True,
+                    )
+
+                st.markdown("---")
+                st.subheader("Full Results")
+                st.dataframe(res, use_container_width=True, hide_index=True)
+    else:
+        st.info("Configure settings in the sidebar and click **Run Optimization** to begin.")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PAGE 4 — Cluster Predictor
+# ═══════════════════════════════════════════════════════════════════════════════
+elif page == "Cluster Predictor":
+    st.title("Cluster Predictor — Data Center Tier Classification")
+    st.markdown("Define a new data center's specs and predict which cluster tier it belongs to.")
+    st.markdown("---")
+
+    col_inputs, col_result = st.columns([1, 1])
+
+    with col_inputs:
+        st.subheader("Facility Specifications")
+        energy = st.slider("Energy Capacity (MW)", 1.0, 150.0, 20.0)
+        area = st.slider("Facility Area (sq.ft)", 1000, 500000, 120000)
+        it_power = st.slider("IT Equipment Power (MW)", 0.5, 100.0, 15.0)
+        pue = st.slider("PUE (Power Usage Effectiveness)", 1.0, 4.0, 1.5, 0.1)
+        year = st.slider("Year Operational", 1990, 2025, 2015)
+        ixp = st.slider("Internet Exchange Points", 0.0, 20.0, 2.0, 0.5)
+
+        st.subheader("Services Offered")
+        c1, c2 = st.columns(2)
+        with c1:
+            full_cab = st.checkbox("Full Cabinets")
+            partial_cab = st.checkbox("Partial Cabinets")
+            shared_rack = st.checkbox("Shared Rackspace")
+            cages = st.checkbox("Cages")
+        with c2:
+            suites = st.checkbox("Suites")
+            bts = st.checkbox("Build To Suit")
+            footprints = st.checkbox("Footprints")
+            remote = st.checkbox("Remote Hands")
+
+        predict_btn = st.button("Predict Cluster", type="primary")
+
+    with col_result:
+        if predict_btn:
+            rf, scaler = load_ml_models()
+            input_df = pd.DataFrame([{
+                "ENERGY": energy, "AREA": area, "IT EQUIPMENT POWER": it_power,
+                "State_Aggregated_PUE": pue,
+                "FULL_CABINETS": int(full_cab), "PARTIAL_CABINETS": int(partial_cab),
+                "SHARED_RACKSPACE": int(shared_rack), "CAGES": int(cages),
+                "SUITES": int(suites), "BUILD_TO_SUIT": int(bts),
+                "FOOTPRINTS": int(footprints), "REMOTE_HANDS": int(remote),
+                "YEAR_OPERATIONAL": year, "State_Aggregated_IXP_Count": ixp,
+            }])
+            scaled = scaler.transform(input_df)
+            cluster_id = int(rf.predict(scaled)[0])
+            probs = rf.predict_proba(scaled)[0]
+            label = CLUSTER_LABELS.get(cluster_id, f"Cluster {cluster_id}")
+            confidence = round(float(probs[cluster_id]) * 100, 1)
+
+            st.subheader("Prediction Result")
+            st.success(f"**{label}** (Cluster {cluster_id})")
+            st.metric("Confidence", f"{confidence}%")
+
+            st.markdown("---")
+            st.subheader("Probability Distribution")
+            prob_df = pd.DataFrame({
+                "Cluster": [CLUSTER_LABELS.get(i, f"Cluster {i}") for i in range(len(probs))],
+                "Probability": [round(p * 100, 2) for p in probs],
+            })
+            fig = px.bar(prob_df, x="Cluster", y="Probability", color="Probability",
+                         color_continuous_scale="Blues", template="plotly_white", text="Probability")
+            fig.update_traces(texttemplate="%{text}%", textposition="outside")
+            st.plotly_chart(fig, use_container_width=True)
+
+            st.markdown("---")
+            st.subheader("What This Means")
+            descriptions = {
+                0: "This facility is a large-scale hyperscale or high-capacity data center. Typically characterized by high energy, large area, and enterprise-grade connectivity.",
+                1: "Mid-tier regional facility serving enterprise and colocation clients. Balanced across capacity, services, and cost.",
+                2: "Edge or colocation-focused facility — smaller footprint, targeted service offerings, often with strong local network presence.",
+            }
+            st.info(descriptions.get(cluster_id, ""))
+        else:
+            st.info("Fill in the specifications and click **Predict Cluster** to see results.")
+
+    st.markdown("---")
+    st.subheader("Existing Cluster Distribution")
+    df = load_clustered()
+    cluster_summary = df.groupby("Cluster").agg(
+        Count=("LOCATION", "count"),
+        Avg_PUE=("State_Aggregated_PUE", "mean"),
+        Avg_Energy=("ENERGY", "mean"),
+        Avg_Area=("AREA", "mean"),
+    ).reset_index().round(2)
+    cluster_summary["Label"] = cluster_summary["Cluster"].map(CLUSTER_LABELS)
+    st.dataframe(cluster_summary[["Cluster", "Label", "Count", "Avg_PUE", "Avg_Energy", "Avg_Area"]],
+                 use_container_width=True, hide_index=True)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PAGE 5 — Data Explorer
+# ═══════════════════════════════════════════════════════════════════════════════
+elif page == "Data Explorer":
+    st.title("Data Explorer")
+    st.markdown("Browse and filter the full US data center dataset.")
+    st.markdown("---")
+
+    df = load_clustered()
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        states = st.multiselect("Filter by State", sorted(df["STATE"].unique()), default=sorted(df["STATE"].unique()))
+    with col2:
+        clusters = st.multiselect("Filter by Cluster", sorted(df["Cluster"].unique()), default=sorted(df["Cluster"].unique()))
+    with col3:
+        min_energy, max_energy = float(df["ENERGY"].min()), float(df["ENERGY"].max())
+        energy_range = st.slider("Energy Range (MW)", min_energy, max_energy, (min_energy, max_energy))
+
+    filtered = df[
+        df["STATE"].isin(states) &
+        df["Cluster"].isin(clusters) &
+        df["ENERGY"].between(*energy_range)
+    ]
+    filtered["Cluster Label"] = filtered["Cluster"].map(CLUSTER_LABELS)
+
+    st.markdown(f"**{len(filtered)} data centers** match your filters.")
+    st.markdown("---")
+
+    col_a, col_b = st.columns(2)
+    with col_a:
+        st.subheader("PUE Distribution by Cluster")
+        fig = px.box(filtered, x="Cluster Label", y="State_Aggregated_PUE",
+                     color="Cluster Label", template="plotly_white",
+                     color_discrete_sequence=px.colors.qualitative.Set2)
+        st.plotly_chart(fig, use_container_width=True)
+
+    with col_b:
+        st.subheader("Energy vs Area")
+        fig2 = px.scatter(filtered, x="ENERGY", y="AREA", color="Cluster Label",
+                          hover_data=["CITY", "STATE", "LOCATION"],
+                          size="State_Aggregated_IXP_Count",
+                          color_discrete_sequence=px.colors.qualitative.Set2,
+                          template="plotly_white")
+        st.plotly_chart(fig2, use_container_width=True)
+
+    st.markdown("---")
+    st.subheader("Full Dataset")
+    display_cols = ["STATE", "CITY", "LOCATION", "ENERGY", "AREA",
+                    "State_Aggregated_PUE", "State_Aggregated_IXP_Count",
+                    "YEAR_OPERATIONAL", "Cluster Label"]
+    st.dataframe(filtered[display_cols].rename(columns={
+        "State_Aggregated_PUE": "PUE",
+        "State_Aggregated_IXP_Count": "IXP Count",
+        "YEAR_OPERATIONAL": "Year",
+    }), use_container_width=True, hide_index=True)
