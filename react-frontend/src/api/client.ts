@@ -4,7 +4,23 @@ import axios from "axios";
 // In production, set VITE_API_URL to the deployed backend URL
 const BASE = import.meta.env.VITE_API_URL ?? "";
 
-export const api = axios.create({ baseURL: BASE, timeout: 60_000 });
+export const api = axios.create({ baseURL: BASE, timeout: 45_000 });
+
+// Retry once on network errors (handles Railway cold-start timeouts)
+api.interceptors.response.use(
+  res => res,
+  async err => {
+    const config = err.config;
+    if (!config || config.__retried) return Promise.reject(err);
+    const isNetwork = !err.response; // timeout or no connection
+    if (isNetwork) {
+      config.__retried = true;
+      await new Promise(r => setTimeout(r, 3000)); // wait 3s then retry
+      return api(config);
+    }
+    return Promise.reject(err);
+  }
+);
 
 // ── Types ────────────────────────────────────────────────────────────────────
 

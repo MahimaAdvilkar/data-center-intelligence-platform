@@ -1,5 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { Building2, Map, Zap, Cpu, BarChart3, MessageSquare, Radar } from "lucide-react";
+import ErrorBoundary from "./ErrorBoundary";
+import BackendStatus from "./BackendStatus";
 
 const NAV = [
   { to: "/",          label: "Overview",      icon: Building2 },
@@ -56,7 +58,10 @@ export default function Layout() {
 
       {/* Main content */}
       <main style={{ flex: 1, background: "#f4f6fb", overflow: "auto" }}>
-        <Outlet />
+        <BackendStatus />
+        <ErrorBoundary>
+          <Outlet />
+        </ErrorBoundary>
       </main>
     </div>
   );
