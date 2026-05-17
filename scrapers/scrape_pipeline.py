@@ -1,13 +1,13 @@
 """
 Unified multi-state data center scraping pipeline.
 
-What it does:
-  1. For each target US state, fetches the list of cities with data centers
-  2. For each city, fetches the list of data centers
-  3. For each data center, fetches detailed specs (power, area, services, etc.)
-  4. Cleans and normalises the data into the project's standard CSV schema
-  5. Appends results to backend/data/dc_raw_scraped.csv incrementally
-  6. Writes a run log to backend/data/pipeline_log.json
+Fixes vs v1:
+  - Deduplicate cities by URL (was processing Santa Clara 2x+)
+  - Try multiple stat selectors (site structure varies by operator)
+  - Accept partial data: energy alone is enough to save a record
+  - Faster sleep: 1–3s between requests instead of 3–7s
+  - max_per_state=20 default (completes in ~15 min per state)
+  - Break out of both loops correctly once state cap is hit
 
 Run: python scrapers/scrape_pipeline.py
 """
@@ -25,7 +25,6 @@ from urllib.parse import urljoin
 import pandas as pd
 from playwright.sync_api import sync_playwright, TimeoutError as PWTimeout
 
-# ── Paths ──────────────────────────────────────────────────────────────────────
 ROOT       = Path(__file__).resolve().parent.parent
 DATA_DIR   = ROOT / "backend" / "data"
 OUTPUT_CSV = DATA_DIR / "dc_raw_scraped.csv"
@@ -34,7 +33,6 @@ LOG_FILE   = DATA_DIR / "pipeline_log.json"
 sys.path.insert(0, str(ROOT))
 from scrapers.state_reference import STATE_REFERENCE, TARGET_STATES
 
-# ── Logging ────────────────────────────────────────────────────────────────────
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s  %(levelname)-8s  %(message)s",
@@ -44,11 +42,6 @@ log = logging.getLogger(__name__)
 
 BASE_URL = "https://www.datacentermap.com/usa/"
 
-# ── Service fields expected in the dataset ─────────────────────────────────────
-SERVICE_FIELDS = [
-    "Full Cabinets", "Partial Cabinets", "Shared Rackspace",
-    "Cages", "Suites", "Build to Suit", "Footprints", "Remote Hands",
-]
 SERVICE_COL_MAP = {
     "Full Cabinets":    "FULL_CABINETS",
     "Partial Cabinets": "PARTIAL_CABINETS",
@@ -60,8 +53,8 @@ SERVICE_COL_MAP = {
     "Remote Hands":     "REMOTE_HANDS",
 }
 
-# ── Helpers ────────────────────────────────────────────────────────────────────
-def _sleep(lo=2, hi=5):
+
+def _sleep(lo=1, hi=3):
     time.sleep(random.uniform(lo, hi))
 
 
@@ -78,11 +71,13 @@ def _cell_value(cell) -> str:
 
 
 def _parse_number(text: str):
-    """Extract first numeric value from a string like '12.5 MW' → 12.5"""
     if not text:
         return None
-    m = re.search(r"[\d,]+\.?\d*", text.replace(",", ""))
-    return float(m.group()) if m else None
+    cleaned = re.sub(r"[^\d.]", "", text.replace(",", ""))
+    try:
+        return float(cleaned) if cleaned else None
+    except ValueError:
+        return None
 
 
 def _parse_year(text: str):
@@ -108,10 +103,18 @@ def _append_row(row: dict):
         df.to_csv(OUTPUT_CSV, index=False)
 
 
-# ── Step 1: Get cities for a state ─────────────────────────────────────────────
+# ── Already-scraped locations (avoid duplicates across runs) ──────────────────
+def _load_scraped_locations() -> set:
+    if not OUTPUT_CSV.exists():
+        return set()
+    df = pd.read_csv(OUTPUT_CSV)
+    return set(zip(df["LOCATION"].str.lower(), df["STATE"]))
+
+
+# ── Step 1: Cities ─────────────────────────────────────────────────────────────
 def get_cities(page, state_full: str) -> list[dict]:
     url = BASE_URL + state_full + "/"
-    log.info(f"Fetching cities for {state_full}: {url}")
+    log.info(f"Fetching cities → {url}")
     try:
         page.goto(url, timeout=30_000)
         page.wait_for_selector("table", timeout=20_000)
@@ -120,162 +123,174 @@ def get_cities(page, state_full: str) -> list[dict]:
         log.warning(f"Timeout loading {url}")
         return []
 
-    cities = []
+    cities, seen_hrefs = [], set()
     try:
-        rows = page.query_selector_all("table tr")
-        for row in rows[1:]:
+        for row in page.query_selector_all("table tr")[1:]:
             cols = row.query_selector_all("td")
             if len(cols) < 2:
                 continue
             link = cols[0].query_selector("a")
             if not link:
                 continue
+            href = link.get_attribute("href")
+            if href in seen_hrefs:          # ← deduplicate by URL
+                continue
+            seen_hrefs.add(href)
             count_text = cols[1].inner_text().strip()
             count = int(re.sub(r"\D", "", count_text)) if count_text else 0
             if count == 0:
                 continue
-            cities.append({
-                "name": link.inner_text().strip(),
-                "href": link.get_attribute("href"),
-                "count": count,
-            })
+            cities.append({"name": link.inner_text().strip(), "href": href, "count": count})
     except Exception as e:
-        log.warning(f"Error parsing cities table: {e}")
+        log.warning(f"Error parsing cities: {e}")
 
-    log.info(f"  Found {len(cities)} cities with data centers")
-    return cities
+    log.info(f"  {len(cities)} unique cities found")
+    return sorted(cities, key=lambda c: c["count"], reverse=True)
 
 
-# ── Step 2: Get datacenter list for a city ─────────────────────────────────────
+# ── Step 2: Data centers per city ─────────────────────────────────────────────
 def get_datacenters(page, city: dict) -> list[dict]:
     city_url = urljoin("https://www.datacentermap.com", city["href"])
-    log.info(f"  City: {city['name']} ({city_url})")
     try:
         page.goto(city_url, timeout=30_000)
         page.wait_for_selector(".ui.card, .ui.centered.cards", timeout=20_000)
-        _sleep(2, 4)
+        _sleep(1, 2)
     except PWTimeout:
-        log.warning(f"  Timeout loading city page: {city_url}")
+        log.warning(f"  Timeout: {city_url}")
         return []
 
-    dcs = []
+    dcs, seen = [], set()
     try:
-        cards = page.query_selector_all(".ui.card")
-        for card in cards:
+        for card in page.query_selector_all(".ui.card"):
             try:
                 name_el = card.query_selector(".header")
                 dc_name = name_el.inner_text().strip() if name_el else None
                 href = card.get_attribute("href")
-                if dc_name and href:
+                if dc_name and href and href not in seen:
+                    seen.add(href)
                     dcs.append({"name": dc_name, "href": href})
             except Exception:
                 pass
     except Exception as e:
-        log.warning(f"  Error parsing datacenter cards: {e}")
+        log.warning(f"  Card parse error: {e}")
 
-    log.info(f"  Found {len(dcs)} data centers")
     return dcs
 
 
-# ── Step 3: Get specs for one datacenter ──────────────────────────────────────
+# ── Step 3: Specs per data center ─────────────────────────────────────────────
 def get_specs(page, dc: dict, city_name: str, state_abbr: str) -> dict | None:
     specs_url = "https://www.datacentermap.com" + dc["href"].rstrip("/") + "/specs/"
     ref = STATE_REFERENCE[state_abbr]
 
-    for attempt in range(3):
+    for attempt in range(2):
         try:
-            page.goto(specs_url, timeout=25_000)
-            _sleep(2, 5)
+            page.goto(specs_url, timeout=20_000)
+            _sleep(1, 2)
             break
         except PWTimeout:
-            log.warning(f"    Timeout attempt {attempt+1} for {specs_url}")
-            if attempt == 2:
+            if attempt == 1:
                 return None
 
     energy, area, year = None, None, None
+
+    # Try selector 1: standard three-stat block
     try:
         stats = page.locator(".ui.three.statistics .ui.statistic")
         if stats.count() >= 1:
-            energy_text = stats.nth(0).inner_text()
-            energy = _parse_number(energy_text)
+            energy = _parse_number(stats.nth(0).inner_text())
         if stats.count() >= 2:
-            area_text = stats.nth(1).inner_text()
-            area = _parse_number(area_text)
+            area = _parse_number(stats.nth(1).inner_text())
         if stats.count() >= 3:
-            year_text = stats.nth(2).inner_text()
-            year = _parse_year(year_text)
-    except Exception as e:
-        log.warning(f"    Stats error: {e}")
+            year = _parse_year(stats.nth(2).inner_text())
+    except Exception:
+        pass
 
-    if not energy and not area:
-        log.info(f"    Skipping {dc['name']} — no key stats found")
+    # Try selector 2: any .statistic blocks on page
+    if not energy:
+        try:
+            for stat in page.query_selector_all(".ui.statistic"):
+                label = (stat.query_selector(".label") or stat).inner_text().lower()
+                value_el = stat.query_selector(".value")
+                if not value_el:
+                    continue
+                val = value_el.inner_text().strip()
+                if "mw" in label or "power" in label or "energy" in label:
+                    energy = _parse_number(val)
+                elif "sq" in label or "area" in label or "floor" in label:
+                    area = _parse_number(val)
+                elif "year" in label or "established" in label or "built" in label:
+                    year = _parse_year(val)
+        except Exception:
+            pass
+
+    # Try selector 3: parse page text for obvious patterns
+    if not energy:
+        try:
+            page_text = page.inner_text("body")
+            mw_match = re.search(r"(\d+\.?\d*)\s*MW", page_text, re.IGNORECASE)
+            if mw_match:
+                energy = float(mw_match.group(1))
+            sqft_match = re.search(r"([\d,]+)\s*sq\.?\s*ft", page_text, re.IGNORECASE)
+            if sqft_match:
+                area = _parse_number(sqft_match.group(1))
+        except Exception:
+            pass
+
+    # Need at least energy to save the record
+    if not energy:
         return None
 
+    # Parse services from spec tables
     services = {col: False for col in SERVICE_COL_MAP.values()}
     it_power = None
-
     try:
-        sections = page.locator(".ui.stackable.grid .eight.wide.column")
-        for i in range(sections.count()):
-            section = sections.nth(i)
-            try:
-                header = section.locator(".ui.horizontal.divider").inner_text().strip().upper()
-            except Exception:
+        for row in page.query_selector_all("tr"):
+            cells = row.query_selector_all("td")
+            if len(cells) < 2:
                 continue
+            key = cells[0].inner_text().strip()
+            val = _cell_value(cells[1])
+            if key in SERVICE_COL_MAP:
+                services[SERVICE_COL_MAP[key]] = val == "Yes"
+            if re.search(r"IT.*(load|power|equipment)", key, re.IGNORECASE):
+                it_power = _parse_number(val)
+    except Exception:
+        pass
 
-            rows = section.locator("tr")
-            for j in range(rows.count()):
-                try:
-                    cells = rows.nth(j).locator("td")
-                    if cells.count() < 2:
-                        continue
-                    key = cells.nth(0).inner_text().strip()
-                    val = _cell_value(cells.nth(1))
-
-                    # Services
-                    if key in SERVICE_COL_MAP:
-                        services[SERVICE_COL_MAP[key]] = val == "Yes"
-
-                    # IT power (sometimes listed as "IT Load" or "IT Equipment Power")
-                    if "IT" in key.upper() and ("LOAD" in key.upper() or "POWER" in key.upper() or "EQUIPMENT" in key.upper()):
-                        it_power = _parse_number(val)
-                except Exception:
-                    pass
-    except Exception as e:
-        log.warning(f"    Specs section error: {e}")
-
-    if it_power is None and energy:
+    if it_power is None:
         it_power = round(energy * 0.7, 2)
 
-    record = {
-        "STATE": state_abbr,
-        "CITY": city_name,
-        "LOCATION": dc["name"],
-        "ENERGY": energy,
-        "AREA": int(area) if area else None,
-        "IT EQUIPMENT POWER": it_power,
-        "State_Aggregated_PUE": ref["pue"],
+    return {
+        "STATE":                     state_abbr,
+        "CITY":                      city_name,
+        "LOCATION":                  dc["name"],
+        "ENERGY":                    energy,
+        "AREA":                      int(area) if area else None,
+        "IT EQUIPMENT POWER":        it_power,
+        "State_Aggregated_PUE":      ref["pue"],
         **services,
-        "YEAR_OPERATIONAL": year,
+        "YEAR_OPERATIONAL":          year,
         "State_Aggregated_IXP_Count": ref["ixp_count"],
-        "SOURCE_URL": specs_url,
-        "SCRAPED_AT": datetime.now(timezone.utc).isoformat(),
+        "SOURCE_URL":                specs_url,
+        "SCRAPED_AT":                datetime.now(timezone.utc).isoformat(),
     }
-    return record
 
 
 # ── Main pipeline ──────────────────────────────────────────────────────────────
-def run_pipeline(states: list[str] = None, max_per_state: int = 60):
+def run_pipeline(states: list[str] = None, max_per_state: int = 20):
     if states is None:
         states = TARGET_STATES
 
+    already_scraped = _load_scraped_locations()
+    log.info(f"Already scraped: {len(already_scraped)} locations (will skip duplicates)")
+
     log_data = _load_log()
     run_entry = {
-        "run_id": datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S"),
-        "started_at": datetime.now(timezone.utc).isoformat(),
-        "states": states,
+        "run_id":       datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S"),
+        "started_at":   datetime.now(timezone.utc).isoformat(),
+        "states":       states,
         "records_added": 0,
-        "errors": [],
+        "errors":       [],
         "state_summary": {},
     }
 
@@ -285,63 +300,64 @@ def run_pipeline(states: list[str] = None, max_per_state: int = 60):
         browser = p.chromium.launch(headless=True)
         context = browser.new_context(
             user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-                       "AppleWebKit/537.36 (KHTML, like Gecko) "
-                       "Chrome/124.0.0.0 Safari/537.36"
+                       "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
         )
         page = context.new_page()
 
         for state_abbr in states:
             if state_abbr not in STATE_REFERENCE:
-                log.warning(f"No reference data for {state_abbr}, skipping")
                 continue
 
             ref = STATE_REFERENCE[state_abbr]
-            state_full = ref["state_full"]
-            log.info(f"\n{'='*50}")
-            log.info(f"STATE: {state_abbr} ({state_full})")
-            log.info(f"{'='*50}")
+            log.info(f"\n{'='*50}\nSTATE: {state_abbr} ({ref['state_full']})\n{'='*50}")
 
             state_count = 0
-            cities = get_cities(page, state_full)
-
-            # Sort cities by count descending — biggest markets first
-            cities = sorted(cities, key=lambda c: c["count"], reverse=True)
+            cities = get_cities(page, ref["state_full"])
 
             for city in cities:
                 if state_count >= max_per_state:
-                    log.info(f"  Reached max {max_per_state} for {state_abbr}")
                     break
 
+                log.info(f"  City: {city['name']} ({city['count']} DCs listed)")
                 dcs = get_datacenters(page, city)
-                _sleep(1, 3)
+                _sleep(1, 2)
 
                 for dc in dcs:
                     if state_count >= max_per_state:
                         break
+
+                    loc_key = (dc["name"].lower(), state_abbr)
+                    if loc_key in already_scraped:
+                        log.info(f"    Skip (already scraped): {dc['name']}")
+                        continue
+
                     try:
                         record = get_specs(page, dc, city["name"], state_abbr)
                         if record:
                             _append_row(record)
+                            already_scraped.add(loc_key)
                             state_count += 1
                             total_added += 1
-                            log.info(f"    [{state_count}] Saved: {dc['name']}, {city['name']}, {state_abbr}")
-                        _sleep(3, 7)
+                            log.info(f"    [{total_added}] Saved: {dc['name']}, {city['name']}, {state_abbr}")
+                        else:
+                            log.info(f"    Skip (no stats): {dc['name']}")
+                        _sleep(1, 3)
                     except Exception as e:
                         log.error(f"    Error on {dc['name']}: {e}")
                         run_entry["errors"].append({"dc": dc["name"], "error": str(e)})
 
             run_entry["state_summary"][state_abbr] = state_count
-            log.info(f"  {state_abbr} done — {state_count} records added")
-            _sleep(3, 6)
+            log.info(f"  {state_abbr} done — {state_count} records")
+            _sleep(2, 4)
 
         browser.close()
 
-    run_entry["finished_at"] = datetime.now(timezone.utc).isoformat()
+    run_entry["finished_at"]   = datetime.now(timezone.utc).isoformat()
     run_entry["records_added"] = total_added
     log_data["runs"].append(run_entry)
     _save_log(log_data)
 
-    log.info(f"\nPipeline complete. Total records added: {total_added}")
+    log.info(f"\nDone. Total records added this run: {total_added}")
     log.info(f"Output: {OUTPUT_CSV}")
     log.info(f"Log:    {LOG_FILE}")
 
