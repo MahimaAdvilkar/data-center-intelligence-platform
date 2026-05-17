@@ -7,15 +7,12 @@ export default function BackendStatus() {
   const [status, setStatus] = useState<Status>("checking");
 
   useEffect(() => {
-    const start = Date.now();
-    const timer = setTimeout(() => setStatus("waking"), 3000);
+    const timer = setTimeout(() => setStatus("waking"), 8000);
 
-    api.get("/health", { timeout: 30_000 })
+    api.get("/health", { timeout: 40_000 })
       .then(() => {
         clearTimeout(timer);
         setStatus("online");
-        // Hide banner after 2s if online fast
-        if (Date.now() - start < 2000) setTimeout(() => setStatus("online"), 2000);
       })
       .catch(() => {
         clearTimeout(timer);
