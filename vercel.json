@@ -1,17 +1,6 @@
 {
-  "builds": [
-    {
-      "src": "api/index.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "react-frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
+  "buildCommand": "cd react-frontend && npm install && npm run build",
+  "outputDirectory": "react-frontend/dist",
   "routes": [
     { "src": "/gravity/(.*)",      "dest": "/api/index.py" },
     { "src": "/optimization/(.*)", "dest": "/api/index.py" },
@@ -20,6 +9,7 @@
     { "src": "/health",            "dest": "/api/index.py" },
     { "src": "/docs",              "dest": "/api/index.py" },
     { "src": "/openapi.json",      "dest": "/api/index.py" },
-    { "src": "/(.*)",              "dest": "/$1" }
+    { "handle": "filesystem" },
+    { "src": "/(.*)",              "dest": "/index.html" }
   ]
 }
