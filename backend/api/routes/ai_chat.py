@@ -3,6 +3,7 @@ import json
 import anthropic
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from backend.core.site_scout import run_site_scout
 from backend.core.ai_context import (
     get_gravity_scores, get_cluster_summary,
     get_dataset_overview, get_top_data_centers, get_city_detail,
@@ -114,6 +115,7 @@ def _run_tool(name: str, inputs: dict):
 class ChatRequest(BaseModel):
     message: str
     history: list = []
+    api_key: str = ""
 
 
 class ChatResponse(BaseModel):
@@ -121,9 +123,37 @@ class ChatResponse(BaseModel):
     tools_used: list[str]
 
 
+class ScoutRequest(BaseModel):
+    region: str
+    capacity_mw: float
+    renewable_target_pct: int
+    budget_tier: str
+    priority: str
+    api_key: str = ""
+
+
+@router.post("/scout")
+def scout(req: ScoutRequest):
+    api_key = req.api_key or os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        raise HTTPException(status_code=500, detail="No Anthropic API key provided.")
+    try:
+        result = run_site_scout(
+            region=req.region,
+            capacity_mw=req.capacity_mw,
+            renewable_target_pct=req.renewable_target_pct,
+            budget_tier=req.budget_tier,
+            priority=req.priority,
+            api_key=api_key,
+        )
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.post("/chat", response_model=ChatResponse)
 def chat(req: ChatRequest):
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    api_key = req.api_key or os.environ.get("ANTHROPIC_API_KEY", "")
     if not api_key:
         raise HTTPException(
             status_code=500,
