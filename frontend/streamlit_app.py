@@ -30,7 +30,7 @@ st.sidebar.title("Data Center Intelligence Platform")
 st.sidebar.markdown("---")
 page = st.sidebar.radio(
     "Navigate",
-    ["Overview", "Site Finder (Gravity Model)", "Optimizer (NSGA-II)", "Cluster Predictor", "Data Explorer", "Data Pipeline", "AI Analyst"],
+    ["Overview", "Site Finder (Gravity Model)", "Optimizer (NSGA-II)", "Cluster Predictor", "Data Explorer", "Data Pipeline", "AI Analyst", "Site Scout Agent"],
 )
 st.sidebar.markdown("---")
 st.sidebar.caption("Built on top of the Capstone Project | Phase 2 — AI Layer")
@@ -816,3 +816,108 @@ STRICT RULES:
         if st.button("Clear conversation"):
             st.session_state.chat_history = []
             st.rerun()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PAGE 8 — Site Scout Agent
+# ═══════════════════════════════════════════════════════════════════════════════
+elif page == "Site Scout Agent":
+    import os
+    from backend.core.site_scout import run_site_scout
+
+    st.title("Site Scout Agent")
+    st.markdown("Describe your data center requirements — the agent automatically runs the gravity model, analyses city parameters, benchmarks efficiency, and writes a full site recommendation report.")
+    st.markdown("---")
+
+    # API key check
+    if "anthropic_api_key" not in st.session_state:
+        st.session_state.anthropic_api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    api_key = st.session_state.anthropic_api_key
+    if not api_key:
+        st.info("Enter your Anthropic API key on the AI Analyst page first.")
+        st.stop()
+
+    # Requirements form
+    st.subheader("Define Your Requirements")
+    col1, col2 = st.columns(2)
+    with col1:
+        region = st.selectbox(
+            "Target Region",
+            ["India — Major Cities", "India — Tier 2 Cities", "Southeast Asia", "Middle East", "Any"],
+        )
+        capacity_mw = st.slider("Required Capacity (MW)", 1, 200, 50)
+        renewable_target = st.slider("Minimum Renewable Energy %", 0, 100, 40)
+    with col2:
+        budget_tier = st.selectbox(
+            "Budget Tier",
+            ["Low — minimize land & energy cost", "Medium — balanced cost/quality", "Premium — best infrastructure"],
+        )
+        priority = st.selectbox(
+            "Top Priority",
+            [
+                "Renewable energy / sustainability",
+                "Network connectivity & low latency",
+                "Lowest total cost of ownership",
+                "Workforce availability & talent pool",
+                "Climate resilience & risk mitigation",
+            ],
+        )
+
+    st.markdown("---")
+    run_btn = st.button("Run Site Scout Analysis", type="primary", use_container_width=True)
+
+    if run_btn:
+        with st.spinner("Agent running — analysing gravity model, benchmarking cities, writing report..."):
+            progress = st.progress(0, text="Fetching gravity model scores...")
+            try:
+                import time
+                progress.progress(20, text="Running city analysis...")
+                result = run_site_scout(
+                    region=region,
+                    capacity_mw=capacity_mw,
+                    renewable_target_pct=renewable_target,
+                    budget_tier=budget_tier,
+                    priority=priority,
+                    api_key=api_key,
+                )
+                progress.progress(100, text="Complete!")
+                time.sleep(0.3)
+                progress.empty()
+
+                # Top city highlight
+                st.success(f"Top Recommended Site: **{result['top_city']}**")
+
+                # Requirements summary
+                with st.expander("Requirements submitted", expanded=False):
+                    r = result["requirements"]
+                    st.markdown(f"- **Region:** {r['region']}")
+                    st.markdown(f"- **Capacity:** {r['capacity_mw']} MW")
+                    st.markdown(f"- **Renewable target:** {r['renewable_pct']}%+")
+                    st.markdown(f"- **Budget:** {r['budget_tier']}")
+                    st.markdown(f"- **Priority:** {r['priority']}")
+
+                st.markdown("---")
+
+                # Full report
+                st.subheader("Full Site Recommendation Report")
+                st.markdown(result["report"])
+
+                st.markdown("---")
+                st.caption(f"Tools used by agent: {', '.join(result['tools_used'])}")
+
+                # Save to session for download
+                st.session_state["last_scout_report"] = result
+
+            except Exception as e:
+                st.error(f"Agent error: {e}")
+
+    # Download previous report
+    if "last_scout_report" in st.session_state:
+        st.markdown("---")
+        report_text = st.session_state["last_scout_report"]["report"]
+        st.download_button(
+            label="Download Report as .txt",
+            data=report_text,
+            file_name="site_scout_report.txt",
+            mime="text/plain",
+        )
