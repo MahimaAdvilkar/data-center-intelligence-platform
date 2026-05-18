@@ -1,7 +1,6 @@
 import pandas as pd
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import Optional
 from backend.core.config import GRAVITY_CSV
 
 router = APIRouter(prefix="/gravity", tags=["Gravity Model"])
@@ -58,9 +57,13 @@ def list_cities():
 
 
 @router.get("/scores")
-def get_all_scores():
+def get_all_scores(top_n: int = 13):
     df = _load_and_score(DEFAULT_WEIGHTS)
-    return df[["Rank", "City", "Score"]].to_dict(orient="records")
+    scores = [
+        {"city": row["City"], "score": round(float(row["Score"]), 4), "rank": int(row["Rank"])}
+        for _, row in df.head(top_n).iterrows()
+    ]
+    return {"scores": scores}
 
 
 @router.get("/scores/{city_name}")
@@ -74,7 +77,7 @@ def get_city_score(city_name: str):
         "city": r["City"],
         "rank": int(r["Rank"]),
         "score": round(float(r["Score"]), 4),
-        "components": {
+        "parameters": {
             p: round(float(r[p + "_norm"]), 4)
             for p in DEFAULT_WEIGHTS
             if p + "_norm" in r.index
@@ -88,4 +91,8 @@ def get_scores_with_custom_weights(weights: WeightsInput):
     if abs(total - 1.0) > 0.01:
         raise HTTPException(status_code=400, detail=f"Weights must sum to 1.0, got {total:.3f}")
     df = _load_and_score(weights.model_dump())
-    return df[["Rank", "City", "Score"]].to_dict(orient="records")
+    scores = [
+        {"city": row["City"], "score": round(float(row["Score"]), 4), "rank": int(row["Rank"])}
+        for _, row in df.iterrows()
+    ]
+    return {"scores": scores}

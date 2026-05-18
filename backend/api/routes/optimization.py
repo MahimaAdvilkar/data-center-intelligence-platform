@@ -73,76 +73,72 @@ def _run_nsga2(df: pd.DataFrame, n_pop: int, n_gen: int, seed: int):
     return tools.sortNondominated(pop, len(pop), first_front_only=True)[0]
 
 
-def _normalize(series: pd.Series) -> pd.Series:
-    rng = series.max() - series.min()
-    return (series - series.min()) / rng if rng != 0 else pd.Series([0.5] * len(series))
-
-
 class OptimizationRequest(BaseModel):
-    n_generations: int = 50
+    # Fields the React frontend sends
+    capacity_mw: float = 50
+    max_pue: float = 1.5
+    min_area_sqft: int = 50_000
+    generations: int = 50
+    # Legacy fields kept for compatibility
     population_size: int = 50
     seed: int = 42
-    weights: Optional[dict] = None
 
 
 @router.post("/run")
 def run_nsga2(req: OptimizationRequest):
-    if req.n_generations < 1 or req.n_generations > 200:
-        raise HTTPException(status_code=400, detail="n_generations must be between 1 and 200.")
-    if req.population_size < 10 or req.population_size > 200:
-        raise HTTPException(status_code=400, detail="population_size must be between 10 and 200.")
-
-    w = req.weights or {"PUE": 0.4, "IXP Count": 0.3, "Service Score": 0.2, "Facility Age": 0.1}
+    n_gen = max(1, min(req.generations, 200))
+    n_pop = max(10, min(req.population_size, 200))
 
     df = _load_df()
-    pareto_front = _run_nsga2(df, req.population_size, req.n_generations, req.seed)
 
-    rows = []
-    for i, ind in enumerate(pareto_front):
-        selected = df[[bool(x) for x in ind]]
-        for _, row in selected.iterrows():
-            rows.append({
-                "solution": i + 1,
-                "location": row["LOCATION"],
-                "city": row["CITY"],
-                "state": row["STATE"],
-                "pue": round(float(row["State_Aggregated_PUE"]), 3),
-                "ixp_count": int(row["State_Aggregated_IXP_Count"]),
-                "service_score": int(row["SERVICE_AVAILABILITY_SCORE"]),
-                "facility_age": int(row["FACILITY_AGE"]),
-            })
+    # Filter to user constraints
+    filtered = df[
+        (df["ENERGY"] >= req.capacity_mw * 0.5) &
+        (df["State_Aggregated_PUE"] <= req.max_pue) &
+        (df["AREA"] >= req.min_area_sqft)
+    ]
+    if len(filtered) < 5:
+        filtered = df  # fall back to full dataset if constraints too tight
 
-    if not rows:
+    pareto_front = _run_nsga2(filtered, n_pop, n_gen, req.seed)
+
+    # Build pareto_front in the shape the React Optimizer page expects
+    points = []
+    seen = set()
+    for ind in pareto_front:
+        selected = filtered[[bool(x) for x in ind]]
+        valid = selected[selected.apply(_is_valid, axis=1)]
+        if valid.empty:
+            continue
+        key = (round(float(valid["State_Aggregated_PUE"].mean()), 3),
+               round(float(valid["ENERGY"].mean()), 1))
+        if key in seen:
+            continue
+        seen.add(key)
+        points.append({
+            "pue":       round(float(valid["State_Aggregated_PUE"].mean()), 3),
+            "energy_mw": round(float(valid["ENERGY"].mean()), 1),
+            "area_sqft": int(valid["AREA"].mean()),
+        })
+
+    if not points:
         raise HTTPException(status_code=500, detail="No valid Pareto solutions found.")
 
-    result_df = pd.DataFrame(rows)
-    result_df["pue_norm"] = _normalize(result_df["pue"])
-    result_df["ixp_norm"] = _normalize(result_df["ixp_count"])
-    result_df["service_norm"] = _normalize(result_df["service_score"])
-    result_df["age_norm"] = _normalize(result_df["facility_age"])
+    # Best solution = lowest PUE in the front
+    best = min(points, key=lambda x: x["pue"])
 
-    result_df["weighted_score"] = (
-        -result_df["pue_norm"] * w.get("PUE", 0.4)
-        + result_df["ixp_norm"] * w.get("IXP Count", 0.3)
-        + result_df["service_norm"] * w.get("Service Score", 0.2)
-        - result_df["age_norm"] * w.get("Facility Age", 0.1)
-    )
-
-    result_df = result_df.sort_values("weighted_score", ascending=False).reset_index(drop=True)
-    result_df["rank"] = result_df.index + 1
-
-    output_cols = ["rank", "location", "city", "state", "pue", "ixp_count", "service_score", "facility_age", "weighted_score"]
     return {
-        "pareto_solutions": len(pareto_front),
-        "total_data_centers": len(result_df),
-        "results": result_df[output_cols].round(4).to_dict(orient="records"),
+        "pareto_front": points,
+        "best_solution": best,
+        "generations": n_gen,
     }
 
 
 @router.get("/data-centers")
 def list_data_centers():
     df = _load_df()
-    cols = ["LOCATION", "CITY", "STATE", "State_Aggregated_PUE", "State_Aggregated_IXP_Count", "SERVICE_AVAILABILITY_SCORE", "FACILITY_AGE"]
+    cols = ["LOCATION", "CITY", "STATE", "State_Aggregated_PUE",
+            "State_Aggregated_IXP_Count", "SERVICE_AVAILABILITY_SCORE", "FACILITY_AGE"]
     return df[cols].rename(columns={
         "LOCATION": "location", "CITY": "city", "STATE": "state",
         "State_Aggregated_PUE": "pue", "State_Aggregated_IXP_Count": "ixp_count",
