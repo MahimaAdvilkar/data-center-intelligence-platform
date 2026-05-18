@@ -81,44 +81,53 @@ export default function Optimizer() {
             </div>
           )}
 
-          {result && (
-            <>
-              {/* Best solution */}
-              <div style={{
-                display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 20,
-              }}>
-                {[
-                  { label: "Best PUE", value: result.best_solution.pue.toFixed(3) },
-                  { label: "Energy (MW)", value: result.best_solution.energy_mw.toFixed(1) },
-                  { label: "Area (sq ft)", value: result.best_solution.area_sqft.toLocaleString() },
-                ].map(c => (
-                  <div key={c.label} style={{
-                    background: "#fff", borderRadius: 10, padding: 16,
-                    boxShadow: "0 1px 4px rgba(0,0,0,0.07)", borderTop: `3px solid ${TEAL}`,
-                  }}>
-                    <div style={{ fontSize: 22, fontWeight: 800, color: NAVY }}>{c.value}</div>
-                    <div style={{ fontSize: 12, color: "#556688", marginTop: 4 }}>{c.label}</div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Pareto scatter */}
-              <div style={{ background: "#fff", borderRadius: 12, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.07)" }}>
-                <div style={{ fontWeight: 600, color: NAVY, marginBottom: 12 }}>
-                  Pareto Front — PUE vs Energy ({result.pareto_front.length} solutions)
+          {result && (() => {
+            const best = result.best_solution;
+            const front = result.pareto_front ?? [];
+            if (!best) {
+              return (
+                <div style={{ background: "#fff", borderRadius: 12, padding: 40, textAlign: "center", color: "#cc0000", boxShadow: "0 1px 4px rgba(0,0,0,0.07)" }}>
+                  Backend returned an unexpected response. Railway may still be deploying — try again in 30 seconds.
                 </div>
-                <ResponsiveContainer width="100%" height={280}>
-                  <ScatterChart>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                    <XAxis dataKey="energy_mw" name="Energy (MW)" label={{ value: "Energy (MW)", position: "bottom", fontSize: 12 }} />
-                    <YAxis dataKey="pue" name="PUE" domain={[1, "auto"]} label={{ value: "PUE", angle: -90, position: "left", fontSize: 12 }} />
-                    <Tooltip cursor={{ strokeDasharray: "3 3" }} />
-                    <Scatter data={result.pareto_front} fill={TEAL} opacity={0.7} />
-                  </ScatterChart>
-                </ResponsiveContainer>
-              </div>
-            </>
-          )}
+              );
+            }
+            return (
+              <>
+                {/* Best solution */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 20 }}>
+                  {[
+                    { label: "Best PUE",     value: best.pue?.toFixed(3) ?? "—" },
+                    { label: "Energy (MW)",  value: best.energy_mw?.toFixed(1) ?? "—" },
+                    { label: "Area (sq ft)", value: best.area_sqft?.toLocaleString() ?? "—" },
+                  ].map(c => (
+                    <div key={c.label} style={{
+                      background: "#fff", borderRadius: 10, padding: 16,
+                      boxShadow: "0 1px 4px rgba(0,0,0,0.07)", borderTop: `3px solid ${TEAL}`,
+                    }}>
+                      <div style={{ fontSize: 22, fontWeight: 800, color: NAVY }}>{c.value}</div>
+                      <div style={{ fontSize: 12, color: "#556688", marginTop: 4 }}>{c.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Pareto scatter */}
+                <div style={{ background: "#fff", borderRadius: 12, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.07)" }}>
+                  <div style={{ fontWeight: 600, color: NAVY, marginBottom: 12 }}>
+                    Pareto Front — PUE vs Energy ({front.length} solutions)
+                  </div>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <ScatterChart>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                      <XAxis dataKey="energy_mw" name="Energy (MW)" label={{ value: "Energy (MW)", position: "bottom", fontSize: 12 }} />
+                      <YAxis dataKey="pue" name="PUE" domain={[1, "auto"]} label={{ value: "PUE", angle: -90, position: "left", fontSize: 12 }} />
+                      <Tooltip cursor={{ strokeDasharray: "3 3" }} />
+                      <Scatter data={front} fill={TEAL} opacity={0.7} />
+                    </ScatterChart>
+                  </ResponsiveContainer>
+                </div>
+              </>
+            );
+          })()}
         </div>
       </div>
     </div>

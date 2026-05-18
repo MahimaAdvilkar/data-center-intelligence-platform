@@ -13,7 +13,7 @@ export default function GravityModel() {
 
   useEffect(() => {
     getGravityScores(13)
-      .then(r => setScores(r.data.scores))
+      .then(r => setScores(r.data?.scores ?? []))
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
   }, []);

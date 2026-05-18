@@ -14,7 +14,7 @@ export default function DataExplorer() {
 
   useEffect(() => {
     getClusterSummary()
-      .then(r => setClusters(r.data.clusters))
+      .then(r => setClusters(r.data?.clusters ?? []))
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
   }, []);
