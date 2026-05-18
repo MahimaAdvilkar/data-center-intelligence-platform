@@ -1,10 +1,18 @@
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 import { api } from "../api/client";
 
 const NAVY = "#0f1e46";
 const TEAL = "#00c8c8";
 
-const REGIONS = ["South India", "North India", "West India", "East India", "Pan-India"];
+const REGIONS = [
+  // India
+  "Pan-India", "South India", "North India", "West India", "East India",
+  // US
+  "US — East Coast (VA, NY, NJ)", "US — West Coast (CA, OR, WA)",
+  "US — South (TX, GA, NC)", "US — Midwest (IL, OH)", "US — Southwest (AZ, CO)",
+  "US — National",
+];
 const BUDGET_TIERS = ["Economy", "Mid-Range", "Enterprise", "Premium"];
 const PRIORITIES = ["PUE / Efficiency", "Renewable energy", "Connectivity (IXP)", "Land cost", "Grid reliability"];
 
@@ -15,28 +23,24 @@ interface ScoutResult {
   requirements: Record<string, string | number>;
 }
 
-function renderReport(report: string) {
-  return report.split("\n").map((line, i) => {
-    if (line.startsWith("## ")) {
-      return (
-        <div key={i} style={{
-          background: TEAL, color: "#fff", fontWeight: 700, fontSize: 13,
-          padding: "6px 14px", borderRadius: 4, margin: "18px 0 8px",
-        }}>
-          {line.replace(/^## /, "")}
-        </div>
-      );
-    }
-    if (line.startsWith("- ") || line.startsWith("* ")) {
-      return <div key={i} style={{ paddingLeft: 18, color: "#334466", fontSize: 13, lineHeight: 1.8 }}>• {line.slice(2)}</div>;
-    }
-    if (/^\d+\./.test(line)) {
-      return <div key={i} style={{ paddingLeft: 14, color: "#334466", fontSize: 13, lineHeight: 1.8, fontWeight: 500 }}>{line}</div>;
-    }
-    if (!line.trim()) return <div key={i} style={{ height: 6 }} />;
-    return <p key={i} style={{ margin: "4px 0", color: "#334466", fontSize: 13, lineHeight: 1.7 }}>{line}</p>;
-  });
-}
+const markdownStyles = `
+  .scout-report h2 {
+    background: #0f1e46;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 4px;
+    margin: 20px 0 10px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .scout-report p { color: #334466; font-size: 13px; line-height: 1.7; margin: 6px 0; }
+  .scout-report ul { padding-left: 20px; margin: 6px 0; }
+  .scout-report li { color: #334466; font-size: 13px; line-height: 1.8; }
+  .scout-report ol { padding-left: 20px; margin: 6px 0; }
+  .scout-report strong { color: #0f1e46; }
+`;
 
 export default function SiteScout() {
   const [apiKey, setApiKey] = useState(localStorage.getItem("anthropic_key") ?? "");
@@ -203,8 +207,11 @@ export default function SiteScout() {
 
                 {/* Report */}
                 <div style={{ background: "#fff", borderRadius: 12, padding: 24, boxShadow: "0 1px 4px rgba(0,0,0,0.07)" }}>
+                  <style>{markdownStyles}</style>
                   <div style={{ fontWeight: 700, color: NAVY, marginBottom: 12, fontSize: 15 }}>Site Recommendation Report</div>
-                  {renderReport(result.report)}
+                  <div className="scout-report">
+                    <ReactMarkdown>{result.report}</ReactMarkdown>
+                  </div>
                 </div>
               </>
             )}

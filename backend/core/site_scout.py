@@ -42,36 +42,36 @@ SCOUT_TOOLS = [
 
 SCOUT_SYSTEM = """You are the Site Scout Agent for the Data Center Intelligence Platform.
 
-Your job: given a user's data center requirements, run the relevant analysis tools and produce a structured site recommendation report.
+Your job: analyse the user's data center requirements, call the relevant tools, and produce a structured professional recommendation report.
 
-ALWAYS follow this exact process:
-1. Call get_gravity_scores to get all city rankings
-2. Call get_city_detail for the top 2-3 cities
-3. Call get_top_data_centers with metric="pue" to benchmark efficiency
-4. Call get_cluster_summary to understand what tier matches the user's needs
-5. Write your final report
+TOOL SELECTION RULES — follow these strictly:
 
-Your final report MUST follow this exact structure (use these exact headers):
+If the region contains "US" or is a US region (e.g. East Coast, West Coast, South, Midwest, Southwest, National):
+  1. Call get_cluster_summary — understand what tier fits the user's capacity
+  2. Call get_top_data_centers with metric="pue" — identify the most efficient existing facilities
+  3. Call get_top_data_centers with metric="energy" — identify highest-capacity sites
+  4. Write your report focused on US markets, states, and data center operators
+
+If the region is an India region (e.g. South India, Pan-India, North India, etc.):
+  1. Call get_gravity_scores — rank Indian cities
+  2. Call get_city_detail for the top 2-3 cities
+  3. Call get_cluster_summary — match the user's tier requirements
+  4. Write your report focused on Indian cities and gravity model scores
+
+OUTPUT FORMAT RULES — these are mandatory:
+- Write in plain professional prose. No emojis whatsoever.
+- Do not use asterisks (* or **) for emphasis. Use plain text.
+- Numbers must come from the tool results — never invent figures.
+- Use these exact section headers (## prefix, uppercase):
 
 ## RECOMMENDATION SUMMARY
-One sentence: the single best city and why.
-
 ## TOP 3 SITES RANKED
-Rank each city with its score, key strengths, and one risk.
-
 ## WHY THIS BEATS THE ALTERNATIVES
-2-3 sentences comparing the top pick against the next best option using real numbers.
-
 ## FIT WITH REQUIREMENTS
-How well does the recommendation match what the user asked for (MW, renewable %, budget tier)?
-
-## RISKS & MITIGATIONS
-2 key risks and how to address them.
-
+## RISKS AND MITIGATIONS
 ## NEXT STEPS
-3 concrete actions the user should take.
 
-Use real numbers from the tools throughout. Be specific and direct."""
+Each section should be concise and data-driven. Cite specific scores, MW values, PUE figures, and state names from the tool results."""
 
 
 def _run_scout_tool(name: str, inputs: dict):
@@ -154,19 +154,24 @@ Run all necessary tools, then write the full site recommendation report."""
 
 
 def _extract_top_city(report: str) -> str:
-    """Best-effort extract the top recommended city from the report."""
-    cities = [
+    """Best-effort extract the top recommended city or state from the report."""
+    locations = [
+        # Indian cities
         "Mumbai", "Hyderabad", "Bangalore", "Pune", "Chennai",
         "Ahmedabad", "Noida", "Gurgaon", "Kolkata", "Jaipur",
         "Chandigarh", "Bhopal", "Nagpur", "Mangalore",
+        # US states / markets
+        "Virginia", "Northern Virginia", "Dallas", "Chicago",
+        "Seattle", "San Jose", "Silicon Valley", "Phoenix",
+        "Atlanta", "New York", "New Jersey", "Portland",
+        "Denver", "Columbus", "Charlotte",
     ]
     report_lower = report.lower()
-    # Find the city mentioned earliest in the report
     earliest = None
     earliest_pos = len(report_lower)
-    for city in cities:
-        pos = report_lower.find(city.lower())
+    for loc in locations:
+        pos = report_lower.find(loc.lower())
         if 0 <= pos < earliest_pos:
             earliest_pos = pos
-            earliest = city
+            earliest = loc
     return earliest or "See report"

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
 import { sendChat } from "../api/client";
 
 const NAVY = "#0f1e46";
@@ -100,7 +101,11 @@ export default function AIChat() {
                   float: m.role === "user" ? "right" : "left",
                   clear: "both",
                 }}>
-                  <div style={{ whiteSpace: "pre-wrap" }}>{m.content}</div>
+                  <div style={{ whiteSpace: "pre-wrap" }}>
+                    {m.role === "assistant"
+                      ? <ReactMarkdown>{m.content}</ReactMarkdown>
+                      : m.content}
+                  </div>
                   {m.tools && m.tools.length > 0 && (
                     <div style={{ fontSize: 10, color: "#8899bb", marginTop: 6 }}>
                       Tools: {m.tools.join(", ")}
